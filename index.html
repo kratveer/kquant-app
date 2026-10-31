@@ -1,0 +1,507 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#14213D">
+<meta name="mobile-web-app-capable" content="yes">
+<title>K-Quant</title>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@75..100,400..800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #EEF1F5;
+  --surface: #FFFFFF;
+  --ink: #14213D;
+  --muted: #5B6880;
+  --line: #D8DEE8;
+  --up: #0F8B6F;
+  --down: #C2410C;
+  --busy: #B7791F;
+  --idle: #9AA5B8;
+  --band: #14213D;
+  --band-ink: #F2F5FA;
+  color-scheme: light;
+  box-sizing: border-box;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0E1626;
+    --surface: #16213A;
+    --ink: #E4EAF3;
+    --muted: #94A1B8;
+    --line: #26334F;
+    --up: #2BB895;
+    --down: #F0743E;
+    --busy: #E0A63A;
+    --idle: #55627C;
+    --band: #0A1120;
+    --band-ink: #E4EAF3;
+    color-scheme: dark;
+  }
+}
+*, *::before, *::after { box-sizing: border-box; }
+html, body { margin: 0; }
+html { scroll-padding-top: env(safe-area-inset-top, 0px); }
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: "Archivo", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 15px;
+  line-height: 1.5;
+  font-variant-numeric: tabular-nums;
+  -webkit-tap-highlight-color: transparent;
+}
+body::before {
+  content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px);
+  z-index: 10; background: var(--band);
+}
+button { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--busy); outline-offset: 2px; }
+
+/* Health band: the one bold element */
+.band {
+  background: var(--band);
+  color: var(--band-ink);
+  padding: 14px 18px 22px;
+}
+.bar { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.brand { font-weight: 800; font-stretch: 80%; font-size: 17px; letter-spacing: .01em; }
+.icon-btn {
+  background: transparent; border: 1px solid rgba(255,255,255,.22); border-radius: 999px;
+  width: 40px; height: 40px; display: grid; place-items: center; cursor: pointer; color: var(--band-ink);
+}
+.icon-btn svg { width: 18px; height: 18px; }
+.icon-btn.spin svg { animation: spin 0.9s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .icon-btn.spin svg { animation: none; opacity: .5; } }
+.actions { display: flex; gap: 8px; }
+
+.headline {
+  margin: 22px 0 4px;
+  font-size: 30px; line-height: 1.1; font-weight: 750; font-stretch: 78%;
+}
+.sub { margin: 0; color: rgba(242,245,250,.72); font-size: 14px; }
+.ticks {
+  margin-top: 20px; display: flex; gap: 4px; align-items: flex-end; height: 34px;
+}
+.tick {
+  flex: 1 1 0; max-width: 14px; border-radius: 2px; height: 100%; background: var(--idle);
+  display: block;
+}
+.tick.success { background: var(--up); }
+.tick.failure { background: var(--down); height: 60%; }
+.tick.busy { background: var(--busy); height: 80%; }
+.ticks-legend { display: flex; justify-content: space-between; font-size: 12px; color: rgba(242,245,250,.55); margin-top: 6px; }
+
+main { padding: 18px 14px 32px; max-width: 720px; margin: 0 auto; display: grid; gap: 22px; }
+section h2 { font-size: 13px; font-weight: 650; color: var(--muted); margin: 0 0 8px 4px; }
+
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; }
+.rows { list-style: none; margin: 0; padding: 0; }
+.rows li { border-top: 1px solid var(--line); }
+.rows li:first-child { border-top: 0; }
+.rows a, .rows .row {
+  display: grid; grid-template-columns: 10px 1fr auto; gap: 12px; align-items: center;
+  padding: 12px 14px; color: inherit; text-decoration: none;
+}
+.dot { width: 10px; height: 10px; border-radius: 50%; background: var(--idle); }
+.dot.success { background: var(--up); }
+.dot.failure { background: var(--down); }
+.dot.busy { background: var(--busy); }
+.row-title { font-weight: 600; overflow: hidden; text-overflow: ellipsis; }
+.row-meta { color: var(--muted); font-size: 13px; }
+.when { color: var(--muted); font-size: 13px; white-space: nowrap; }
+
+.report-head {
+  display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  padding: 10px 10px 10px 16px; border-bottom: 1px solid var(--line);
+}
+.report-date { font-weight: 650; }
+.pager { display: flex; gap: 6px; }
+.pager button {
+  border: 1px solid var(--line); background: transparent; border-radius: 8px;
+  padding: 6px 12px; cursor: pointer; font-size: 14px;
+}
+.pager button:disabled { opacity: .35; cursor: default; }
+.prose { padding: 4px 16px 16px; overflow-wrap: anywhere; }
+.prose h1, .prose h2, .prose h3 { font-stretch: 85%; line-height: 1.2; margin: 18px 0 6px; }
+.prose h1 { font-size: 20px; } .prose h2 { font-size: 17px; color: var(--ink); } .prose h3 { font-size: 15px; }
+.prose table { border-collapse: collapse; display: block; overflow-x: auto; max-width: 100%; font-size: 14px; }
+.prose th, .prose td { border-bottom: 1px solid var(--line); padding: 6px 10px 6px 0; text-align: left; white-space: nowrap; }
+.prose pre { background: var(--bg); padding: 10px; border-radius: 8px; overflow-x: auto; font-size: 13px; }
+.prose code { font-size: 13px; }
+.prose a { color: var(--up); }
+.prose img { max-width: 100%; }
+.report-link { display: block; padding: 0 16px 14px; font-size: 13px; color: var(--muted); }
+
+.empty { padding: 16px; color: var(--muted); }
+.notice {
+  border-radius: 12px; padding: 12px 14px; font-size: 14px;
+  background: color-mix(in srgb, var(--down) 12%, var(--surface)); border: 1px solid color-mix(in srgb, var(--down) 40%, var(--line));
+}
+.notice.soft { background: var(--surface); border-color: var(--line); color: var(--muted); }
+.notice button { background: none; border: 0; padding: 0; text-decoration: underline; cursor: pointer; color: inherit; font-weight: 600; }
+.foot { text-align: center; font-size: 12px; color: var(--muted); }
+
+/* Settings */
+dialog {
+  border: 0; border-radius: 16px; padding: 0; width: min(440px, calc(100% - 24px));
+  background: var(--surface); color: var(--ink);
+}
+dialog::backdrop { background: rgba(10,17,32,.55); }
+.sheet { padding: 20px; display: grid; gap: 14px; }
+.sheet h3 { margin: 0; font-size: 19px; font-stretch: 85%; }
+.sheet p { margin: 0; color: var(--muted); font-size: 14px; }
+label { display: grid; gap: 4px; font-size: 14px; font-weight: 600; }
+input {
+  font: inherit; font-weight: 400; padding: 10px 12px; border-radius: 10px;
+  border: 1px solid var(--line); background: var(--bg); color: var(--ink); width: 100%;
+}
+.hint { font-weight: 400; color: var(--muted); font-size: 13px; }
+.sheet-actions { display: flex; gap: 8px; justify-content: flex-end; flex-wrap: wrap; }
+.btn { border-radius: 10px; padding: 10px 16px; border: 1px solid var(--line); background: transparent; cursor: pointer; }
+.btn.primary { background: var(--ink); color: var(--surface); border-color: var(--ink); font-weight: 650; }
+.btn.danger { color: var(--down); margin-right: auto; }
+</style>
+</head>
+<body>
+
+<header class="band">
+  <div class="bar">
+    <span class="brand">K-Quant</span>
+    <div class="actions">
+      <button class="icon-btn" id="refresh" aria-label="Refresh">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M20 11a8 8 0 1 0-2.3 5.7"/><path d="M20 4v7h-7"/></svg>
+      </button>
+      <button class="icon-btn" id="open-settings" aria-label="Settings">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>
+      </button>
+    </div>
+  </div>
+  <p class="headline" id="headline">Loading…</p>
+  <p class="sub" id="subline">Checking GitHub for the latest runs</p>
+  <div class="ticks" id="ticks" aria-hidden="true"></div>
+  <div class="ticks-legend" id="ticks-legend" hidden><span>Older</span><span>Latest run</span></div>
+</header>
+
+<main>
+  <div id="notice" hidden></div>
+
+  <section aria-labelledby="h-report">
+    <h2 id="h-report">Daily report</h2>
+    <div class="panel" id="report"><div class="empty">No report loaded yet.</div></div>
+  </section>
+
+  <section aria-labelledby="h-alerts">
+    <h2 id="h-alerts">Needs attention</h2>
+    <div class="panel"><ul class="rows" id="alerts"><li><div class="empty">Nothing loaded yet.</div></li></ul></div>
+  </section>
+
+  <section aria-labelledby="h-workflows">
+    <h2 id="h-workflows">Workflows</h2>
+    <div class="panel"><ul class="rows" id="workflows"><li><div class="empty">Nothing loaded yet.</div></li></ul></div>
+  </section>
+
+  <p class="foot" id="foot"></p>
+</main>
+
+<dialog id="settings">
+  <form class="sheet" method="dialog" id="settings-form">
+    <h3>Connect to GitHub</h3>
+    <p>The app reads your bot’s runs and reports directly from GitHub. Your token stays on this phone.</p>
+    <label>Repository
+      <input id="f-repo" placeholder="owner/repo" autocomplete="off" autocapitalize="off" spellcheck="false" required>
+    </label>
+    <label>GitHub token
+      <input id="f-token" type="password" placeholder="github_pat_…" autocomplete="off" spellcheck="false">
+      <span class="hint">Needed for a private repo. Use a fine-grained token, read-only, for this one repo.</span>
+    </label>
+    <label>Report issue title
+      <input id="f-title" autocomplete="off">
+      <span class="hint">The issue your workflow posts the daily report to.</span>
+    </label>
+    <div class="sheet-actions">
+      <button type="button" class="btn danger" id="forget">Remove token</button>
+      <button type="button" class="btn" id="cancel">Cancel</button>
+      <button type="submit" class="btn primary">Save and load</button>
+    </div>
+  </form>
+</dialog>
+
+<script>
+const DEFAULTS = { repo: "kratveer/kquant", token: "", title: "K-Quant daily report" };
+const SETTINGS_KEY = "kq-settings";
+const CACHE_KEY = "kq-cache";
+const $ = id => document.getElementById(id);
+
+function readStore(key) {
+  try { return JSON.parse(localStorage.getItem(key) || "null"); } catch { return null; }
+}
+function writeStore(key, value) {
+  try { localStorage.setItem(key, JSON.stringify(value)); } catch {}
+}
+let settings = Object.assign({}, DEFAULTS, readStore(SETTINGS_KEY) || {});
+let reports = [];
+let reportIndex = 0;
+
+/* ---------- GitHub API ---------- */
+class GhError extends Error {
+  constructor(message, kind) { super(message); this.kind = kind; }
+}
+async function gh(path, { html = false } = {}) {
+  const headers = {
+    "Accept": html ? "application/vnd.github.html+json" : "application/vnd.github+json",
+    "X-GitHub-Api-Version": "2022-11-28"
+  };
+  if (settings.token) headers.Authorization = "Bearer " + settings.token;
+  let res;
+  try {
+    res = await fetch("https://api.github.com" + path, { headers, cache: "no-store" });
+  } catch {
+    throw new GhError("No connection to GitHub.", "offline");
+  }
+  if (res.ok) return res.json();
+  const [owner, repo] = settings.repo.split("/");
+  if (res.status === 401) throw new GhError("GitHub rejected the token. It may have expired. Add a new one in Settings.", "auth");
+  if (res.status === 403 && res.headers.get("x-ratelimit-remaining") === "0") {
+    throw new GhError(settings.token
+      ? "GitHub’s hourly request limit is used up. Try again later."
+      : "GitHub’s hourly limit for requests without a token is used up. Add a token in Settings.", "limit");
+  }
+  if (res.status === 404 || res.status === 403) {
+    throw new GhError(`Can’t open ${owner}/${repo}. If it’s private, add a token with access to it in Settings, or check the name.`, "access");
+  }
+  throw new GhError(`GitHub answered with error ${res.status}.`, "other");
+}
+
+const repoPath = () => "/repos/" + settings.repo.split("/").map(encodeURIComponent).join("/");
+
+async function fetchRuns() {
+  const data = await gh(repoPath() + "/actions/runs?per_page=40");
+  return (data.workflow_runs || []).map(r => ({
+    name: r.name, title: r.display_title, status: r.status, conclusion: r.conclusion,
+    at: r.run_started_at || r.created_at, url: r.html_url, attempt: r.run_attempt, branch: r.head_branch
+  }));
+}
+
+async function fetchIssuesAndReports() {
+  const issues = (await gh(repoPath() + "/issues?state=all&sort=created&direction=desc&per_page=60", { html: true }))
+    .filter(i => !i.pull_request);
+  const needle = settings.title.trim().toLowerCase();
+  const reportIssues = needle ? issues.filter(i => i.title.toLowerCase().includes(needle)) : [];
+  const found = [];
+
+  // Reports posted as comments on one issue (newest issue first)
+  for (const issue of reportIssues.slice(0, 3)) {
+    if (issue.comments > 0) {
+      const perPage = 100;
+      const last = Math.ceil(issue.comments / perPage);
+      let comments = await gh(`${repoPath()}/issues/${issue.number}/comments?per_page=${perPage}&page=${last}`, { html: true });
+      if (comments.length < 10 && last > 1) {
+        const prev = await gh(`${repoPath()}/issues/${issue.number}/comments?per_page=${perPage}&page=${last - 1}`, { html: true });
+        comments = prev.concat(comments);
+      }
+      comments.reverse().forEach(c => found.push({ html: c.body_html || "", at: c.created_at, url: c.html_url }));
+    }
+    // Reports posted as a new issue each time (or in the issue body)
+    if (issue.body_html && issue.body_html.trim()) {
+      found.push({ html: issue.body_html, at: issue.created_at, url: issue.html_url });
+    }
+  }
+  found.sort((a, b) => new Date(b.at) - new Date(a.at));
+
+  const openIssues = issues
+    .filter(i => i.state === "open" && !reportIssues.includes(i))
+    .map(i => ({ kind: "issue", title: i.title, number: i.number, at: i.updated_at, url: i.html_url }));
+
+  return { reports: found.slice(0, 30), openIssues };
+}
+
+/* ---------- Helpers ---------- */
+function ago(iso) {
+  if (!iso) return "";
+  const s = Math.round((Date.now() - new Date(iso)) / 1000);
+  if (s < 60) return "just now";
+  const m = Math.round(s / 60); if (m < 60) return m + " min ago";
+  const h = Math.round(m / 60); if (h < 24) return h + " h ago";
+  const d = Math.round(h / 24); if (d < 14) return d + (d === 1 ? " day ago" : " days ago");
+  return new Date(iso).toLocaleDateString();
+}
+function fullDate(iso) {
+  return new Date(iso).toLocaleString(undefined, { weekday: "short", day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" });
+}
+function state(run) {
+  if (run.status !== "completed") return "busy";
+  if (run.conclusion === "success") return "success";
+  if (["failure", "timed_out", "startup_failure"].includes(run.conclusion)) return "failure";
+  return "idle";
+}
+function esc(s) {
+  return String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "\"": "&quot;", "'": "&#39;" }[c]));
+}
+
+/* ---------- Render ---------- */
+function renderHealth(runs) {
+  const ticks = $("ticks");
+  ticks.innerHTML = "";
+  if (!runs.length) {
+    $("headline").textContent = "No runs yet";
+    $("subline").textContent = "GitHub hasn’t recorded any workflow runs for this repo.";
+    $("ticks-legend").hidden = true;
+    return;
+  }
+  runs.slice(0, 24).reverse().forEach(r => {
+    const t = document.createElement("span");
+    t.className = "tick " + state(r);
+    t.title = `${r.name}: ${r.conclusion || r.status}, ${ago(r.at)}`;
+    ticks.appendChild(t);
+  });
+  $("ticks-legend").hidden = false;
+
+  const latest = runs[0];
+  const st = state(latest);
+  const words = { success: "Last run passed", failure: "Last run failed", busy: "Running now", idle: "Last run " + (latest.conclusion || "stopped") };
+  $("headline").textContent = words[st];
+  const recentFails = runs.filter(r => state(r) === "failure" && Date.now() - new Date(r.at) < 864e5).length;
+  $("subline").textContent = `${latest.name}, ${ago(latest.at)}` +
+    (recentFails ? `. ${recentFails} failed run${recentFails > 1 ? "s" : ""} in the last 24 h.` : ".");
+}
+
+function renderWorkflows(runs) {
+  const list = $("workflows");
+  const byName = new Map();
+  runs.forEach(r => { if (!byName.has(r.name)) byName.set(r.name, r); });
+  if (!byName.size) { list.innerHTML = `<li><div class="empty">No workflows have run yet.</div></li>`; return; }
+  list.innerHTML = [...byName.values()].map(r => `
+    <li><a href="${esc(r.url)}" target="_blank" rel="noopener">
+      <span class="dot ${state(r)}"></span>
+      <span><div class="row-title">${esc(r.name)}</div>
+      <div class="row-meta">${esc(r.conclusion || r.status)}${r.attempt > 1 ? `, attempt ${r.attempt}` : ""}</div></span>
+      <span class="when">${ago(r.at)}</span>
+    </a></li>`).join("");
+}
+
+function renderAlerts(runs, openIssues) {
+  const cutoff = Date.now() - 3 * 864e5;
+  const failed = runs.filter(r => state(r) === "failure" && new Date(r.at) > cutoff)
+    .map(r => ({ kind: "run", title: `${r.name} failed`, meta: r.attempt > 1 ? `Attempt ${r.attempt}` : r.title, at: r.at, url: r.url }));
+  const items = openIssues.map(i => ({ ...i, meta: `Open issue #${i.number}` })).concat(failed)
+    .sort((a, b) => new Date(b.at) - new Date(a.at));
+  const list = $("alerts");
+  if (!items.length) { list.innerHTML = `<li><div class="empty">No failed runs in the last 3 days and no open issues.</div></li>`; return; }
+  list.innerHTML = items.slice(0, 15).map(i => `
+    <li><a href="${esc(i.url)}" target="_blank" rel="noopener">
+      <span class="dot ${i.kind === "run" ? "failure" : "busy"}"></span>
+      <span><div class="row-title">${esc(i.title)}</div><div class="row-meta">${esc(i.meta)}</div></span>
+      <span class="when">${ago(i.at)}</span>
+    </a></li>`).join("");
+}
+
+function renderReport() {
+  const box = $("report");
+  if (!reports.length) {
+    box.innerHTML = `<div class="empty">No report found. The app looks for an issue titled “${esc(settings.title)}”. Change the title in Settings if your workflow uses a different one.</div>`;
+    return;
+  }
+  const r = reports[reportIndex];
+  // body_html is rendered and sanitized by GitHub
+  box.innerHTML = `
+    <div class="report-head">
+      <span class="report-date">${esc(fullDate(r.at))}</span>
+      <span class="pager">
+        <button id="older" ${reportIndex >= reports.length - 1 ? "disabled" : ""} aria-label="Older report">Older</button>
+        <button id="newer" ${reportIndex === 0 ? "disabled" : ""} aria-label="Newer report">Newer</button>
+      </span>
+    </div>
+    <div class="prose">${r.html || "<p>This report is empty.</p>"}</div>
+    <a class="report-link" href="${esc(r.url)}" target="_blank" rel="noopener">Open on GitHub</a>`;
+  $("older").onclick = () => { reportIndex++; renderReport(); };
+  $("newer").onclick = () => { reportIndex--; renderReport(); };
+}
+
+function showNotice(text, soft = false, action) {
+  const n = $("notice");
+  if (!text) { n.hidden = true; return; }
+  n.className = "notice" + (soft ? " soft" : "");
+  n.innerHTML = esc(text) + (action ? ` <button id="notice-action">${esc(action.label)}</button>` : "");
+  n.hidden = false;
+  if (action) $("notice-action").onclick = action.run;
+}
+
+function renderAll(data) {
+  renderHealth(data.runs);
+  renderWorkflows(data.runs);
+  renderAlerts(data.runs, data.openIssues);
+  reports = data.reports;
+  reportIndex = Math.min(reportIndex, Math.max(0, reports.length - 1));
+  renderReport();
+  $("foot").textContent = `${settings.repo}. Updated ${fullDate(data.at)}.`;
+}
+
+/* ---------- Load ---------- */
+let loading = false;
+async function load() {
+  if (loading) return;
+  loading = true;
+  $("refresh").classList.add("spin");
+  try {
+    const [runs, issueData] = await Promise.all([fetchRuns(), fetchIssuesAndReports()]);
+    const data = { at: new Date().toISOString(), runs, ...issueData };
+    writeStore(CACHE_KEY, { ...data, repo: settings.repo, reports: data.reports.slice(0, 10) });
+    renderAll(data);
+    showNotice("");
+  } catch (e) {
+    const cached = readStore(CACHE_KEY);
+    if (cached && cached.repo === settings.repo) renderAll(cached);
+    const suffix = cached && cached.repo === settings.repo ? ` Showing data from ${ago(cached.at)}.` : "";
+    const fix = ["auth", "access", "limit"].includes(e.kind) ? { label: "Open Settings", run: openSettings } : null;
+    showNotice((e.message || "Couldn’t load data.") + suffix, e.kind === "offline", fix);
+    if (!cached || cached.repo !== settings.repo) {
+      $("headline").textContent = e.kind === "offline" ? "Offline" : "Can’t reach your repo";
+      $("subline").textContent = e.kind === "offline" ? "Connect to the internet and tap refresh." : "Check the message below.";
+    }
+  } finally {
+    loading = false;
+    $("refresh").classList.remove("spin");
+  }
+}
+
+/* ---------- Settings ---------- */
+function openSettings() {
+  $("f-repo").value = settings.repo;
+  $("f-token").value = settings.token;
+  $("f-title").value = settings.title;
+  $("settings").showModal();
+}
+$("open-settings").onclick = openSettings;
+$("cancel").onclick = () => $("settings").close();
+$("forget").onclick = () => { $("f-token").value = ""; };
+$("settings-form").addEventListener("submit", () => {
+  const repo = $("f-repo").value.trim().replace(/^https?:\/\/github\.com\//, "").replace(/\/+$/, "");
+  settings = { repo: repo || DEFAULTS.repo, token: $("f-token").value.trim(), title: $("f-title").value.trim() || DEFAULTS.title };
+  writeStore(SETTINGS_KEY, settings);
+  reportIndex = 0;
+  load();
+});
+$("refresh").onclick = load;
+
+// Refresh when you come back to the app after 5+ minutes
+let lastShown = Date.now();
+document.addEventListener("visibilitychange", () => {
+  if (document.visibilityState === "visible" && Date.now() - lastShown > 3e5) load();
+  if (document.visibilityState === "hidden") lastShown = Date.now();
+});
+
+if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(() => {});
+
+if (!readStore(SETTINGS_KEY)) openSettings();
+load();
+</script>
+</body>
+</html>
