@@ -3,224 +3,292 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#14213D">
+<meta name="theme-color" content="#e9edf2">
 <meta name="mobile-web-app-capable" content="yes">
 <title>K-Quant</title>
 <link rel="manifest" href="manifest.json">
 <link rel="icon" href="icon-192.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@75..100,400..800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400..700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"
+  onerror="var s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js';document.head.appendChild(s)"></script>
 <style>
-:root {
-  --bg: #EEF1F5;
-  --surface: #FFFFFF;
-  --ink: #14213D;
-  --muted: #5B6880;
-  --line: #D8DEE8;
-  --up: #0F8B6F;
-  --down: #C2410C;
-  --busy: #B7791F;
-  --idle: #9AA5B8;
-  --band: #14213D;
-  --band-ink: #F2F5FA;
-  color-scheme: light;
-  box-sizing: border-box;
-  padding-top: env(safe-area-inset-top, 0px);
-  padding-bottom: env(safe-area-inset-bottom, 0px);
-}
-@media (prefers-color-scheme: dark) {
   :root {
-    --bg: #0E1626;
-    --surface: #16213A;
-    --ink: #E4EAF3;
-    --muted: #94A1B8;
-    --line: #26334F;
-    --up: #2BB895;
-    --down: #F0743E;
-    --busy: #E0A63A;
-    --idle: #55627C;
-    --band: #0A1120;
-    --band-ink: #E4EAF3;
-    color-scheme: dark;
+    --ink: #10213f; --ink-2: #4a5a78; --ink-3: #8090ab;
+    --sky: #1f7aff; --mint: #12b886; --coral: #ff5b5b; --sun: #ffb21e; --grape: #7c5cff;
+    --card: rgba(246, 248, 251, .82);
+    --line: rgba(16, 33, 63, .09); --line-2: rgba(16, 33, 63, .16);
+    --r: 20px;
+    --sans: "Instrument Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    --serif: "Source Serif 4", Georgia, "Times New Roman", serif;
+    color-scheme: light;
+    box-sizing: border-box;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
   }
-}
-*, *::before, *::after { box-sizing: border-box; }
-html, body { margin: 0; }
-html { scroll-padding-top: env(safe-area-inset-top, 0px); }
-body {
-  background: var(--bg);
-  color: var(--ink);
-  font-family: "Archivo", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-  font-size: 15px;
-  line-height: 1.5;
-  font-variant-numeric: tabular-nums;
-  -webkit-tap-highlight-color: transparent;
-}
-body::before {
-  content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px);
-  z-index: 10; background: var(--band);
-}
-button { font: inherit; color: inherit; }
-:focus-visible { outline: 2px solid var(--busy); outline-offset: 2px; }
+  *, *::before, *::after { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body {
+    color: var(--ink); font-family: var(--sans); font-size: 15px; line-height: 1.5;
+    min-height: 100vh; -webkit-tap-highlight-color: transparent;
+    background:
+      radial-gradient(42rem 26rem at 8% -6%, rgba(31, 122, 255, .10), transparent 62%),
+      radial-gradient(36rem 24rem at 96% 4%, rgba(255, 178, 30, .10), transparent 64%),
+      radial-gradient(40rem 26rem at 70% 105%, rgba(18, 184, 134, .09), transparent 66%),
+      linear-gradient(180deg, #e9edf2 0%, #e4e8ee 100%);
+  }
+  body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: #e9edf2; }
+  button { font: inherit; color: inherit; }
+  :focus-visible { outline: 2px solid var(--sky); outline-offset: 2px; }
 
-/* Health band: the one bold element */
-.band {
-  background: var(--band);
-  color: var(--band-ink);
-  padding: 14px 18px 22px;
-}
-.bar { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
-.brand { font-weight: 800; font-stretch: 80%; font-size: 17px; letter-spacing: .01em; }
-.icon-btn {
-  background: transparent; border: 1px solid rgba(255,255,255,.22); border-radius: 999px;
-  width: 40px; height: 40px; display: grid; place-items: center; cursor: pointer; color: var(--band-ink);
-}
-.icon-btn svg { width: 18px; height: 18px; }
-.icon-btn.spin svg { animation: spin 0.9s linear infinite; }
-@keyframes spin { to { transform: rotate(360deg); } }
-@media (prefers-reduced-motion: reduce) { .icon-btn.spin svg { animation: none; opacity: .5; } }
-.actions { display: flex; gap: 8px; }
+  .kq { display: grid; gap: 20px; max-width: 78rem; margin-inline: auto; padding: 18px max(16px, 3vw) 36px; }
+  h1 { font-family: var(--serif); font-weight: 400; font-size: clamp(30px, 4.2vw, 44px); margin: 0; letter-spacing: -.015em; }
+  h2 { font-size: 15px; font-weight: 600; margin: 0; letter-spacing: -.005em; }
 
-.headline {
-  margin: 22px 0 4px;
-  font-size: 30px; line-height: 1.1; font-weight: 750; font-stretch: 78%;
-}
-.sub { margin: 0; color: rgba(242,245,250,.72); font-size: 14px; }
-.ticks {
-  margin-top: 20px; display: flex; gap: 4px; align-items: flex-end; height: 34px;
-}
-.tick {
-  flex: 1 1 0; max-width: 14px; border-radius: 2px; height: 100%; background: var(--idle);
-  display: block;
-}
-.tick.success { background: var(--up); }
-.tick.failure { background: var(--down); height: 60%; }
-.tick.busy { background: var(--busy); height: 80%; }
-.ticks-legend { display: flex; justify-content: space-between; font-size: 12px; color: rgba(242,245,250,.55); margin-top: 6px; }
+  .toolbar { display: flex; align-items: center; justify-content: space-between; gap: 10px; font-size: 12.5px; color: var(--ink-2); }
+  .tb-actions { display: flex; gap: 8px; }
+  .tb-btn {
+    display: inline-flex; align-items: center; gap: 6px; padding: 7px 12px; border-radius: 999px; cursor: pointer;
+    background: rgba(255,255,255,.75); border: 1px solid var(--line); font-size: 13px; font-weight: 600;
+  }
+  .tb-btn svg { width: 15px; height: 15px; }
+  .tb-btn.spin svg { animation: spin .9s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  @media (prefers-reduced-motion: reduce) { .tb-btn.spin svg { animation: none; opacity: .5; } }
 
-main { padding: 18px 14px 32px; max-width: 720px; margin: 0 auto; display: grid; gap: 22px; }
-section h2 { font-size: 13px; font-weight: 650; color: var(--muted); margin: 0 0 8px 4px; }
+  .kq-card {
+    background: var(--card);
+    -webkit-backdrop-filter: blur(18px) saturate(160%); backdrop-filter: blur(18px) saturate(160%);
+    border: 1px solid rgba(255, 255, 255, .55); outline: 1px solid var(--line); outline-offset: -1px;
+    border-radius: var(--r);
+    box-shadow: 0 1px 2px rgba(16, 33, 63, .05), 0 10px 30px rgba(31, 122, 255, .08);
+    padding: 20px 22px; display: grid; gap: 12px; align-content: start; min-width: 0; position: relative;
+  }
 
-.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; }
-.rows { list-style: none; margin: 0; padding: 0; }
-.rows li { border-top: 1px solid var(--line); }
-.rows li:first-child { border-top: 0; }
-.rows a, .rows .row {
-  display: grid; grid-template-columns: 10px 1fr auto; gap: 12px; align-items: center;
-  padding: 12px 14px; color: inherit; text-decoration: none;
-}
-.dot { width: 10px; height: 10px; border-radius: 50%; background: var(--idle); }
-.dot.success { background: var(--up); }
-.dot.failure { background: var(--down); }
-.dot.busy { background: var(--busy); }
-.row-title { font-weight: 600; overflow: hidden; text-overflow: ellipsis; }
-.row-meta { color: var(--muted); font-size: 13px; }
-.when { color: var(--muted); font-size: 13px; white-space: nowrap; }
+  .kq-hero { padding: 26px 28px; gap: 16px; background: linear-gradient(135deg, rgba(248, 250, 252, .92), rgba(232, 238, 246, .85)); }
+  .kq-hero-top { display: flex; flex-wrap: wrap; gap: 14px; align-items: center; justify-content: space-between; }
+  .kq-eyebrow { font-size: 12px; letter-spacing: .1em; text-transform: uppercase; color: var(--sky); font-weight: 600; margin: 0 0 4px; }
+  .kq-lead { margin: 0; max-width: 72ch; line-height: 1.9; font-size: 15px; color: var(--ink-2); }
+  .kq-lead b { color: var(--ink); font-weight: 650; font-variant-numeric: tabular-nums; padding: 2px 8px; border-radius: 8px; background: rgba(31, 122, 255, .09); white-space: nowrap; }
+  .kq-lead b.kq-up { color: #0b8a63; background: rgba(18, 184, 134, .14); }
+  .kq-lead b.kq-down { color: #d83a3a; background: rgba(255, 91, 91, .13); }
+  .kq-pills { display: flex; flex-wrap: wrap; gap: 8px; }
+  .kq-pill { font-size: 12px; font-weight: 600; padding: 6px 12px; border-radius: 999px; white-space: nowrap; display: inline-flex; align-items: center; gap: 7px; background: #f7f9fb; border: 1px solid var(--line); }
+  .kq-pill::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: currentColor; box-shadow: 0 0 0 3px color-mix(in srgb, currentColor 20%, transparent); }
+  .kq-pill.ok { color: #0b8a63; } .kq-pill.sky { color: var(--sky); } .kq-pill.bad { color: #d83a3a; }
+  .kq-total { display: grid; justify-items: end; gap: 6px; text-align: right; }
+  .kq-total-v { font-family: var(--serif); font-size: clamp(28px, 3.6vw, 40px); line-height: 1; font-variant-numeric: tabular-nums; }
+  .kq-delta { display: inline-flex; align-items: center; gap: 6px; font-size: 13.5px; font-weight: 650; font-variant-numeric: tabular-nums; padding: 5px 12px; border-radius: 999px; background: rgba(16, 33, 63, .06); color: var(--ink-2); }
+  .kq-delta.kq-up { background: rgba(18, 184, 134, .16); color: #0a7a57; }
+  .kq-delta.kq-down { background: rgba(255, 91, 91, .15); color: #c92f2f; }
+  @media (max-width: 520px) { .kq-total { justify-items: start; text-align: left; } }
+  .kq-note { color: var(--ink-2); font-size: 12.5px; margin: 0; line-height: 1.55; max-width: 78ch; }
+  .kq-wait { margin: 0; padding: 14px 18px; border-radius: 16px; border: 1px dashed rgba(31, 122, 255, .45); background: rgba(255, 255, 255, .7); color: var(--ink-2); font-size: 14px; }
+  .kq-wait.bad { border-color: rgba(255, 91, 91, .55); color: var(--ink); }
+  .kq-wait button { background: none; border: 0; padding: 0; text-decoration: underline; cursor: pointer; font-weight: 650; }
 
-.report-head {
-  display: flex; align-items: center; justify-content: space-between; gap: 8px;
-  padding: 10px 10px 10px 16px; border-bottom: 1px solid var(--line);
-}
-.report-date { font-weight: 650; }
-.pager { display: flex; gap: 6px; }
-.pager button {
-  border: 1px solid var(--line); background: transparent; border-radius: 8px;
-  padding: 6px 12px; cursor: pointer; font-size: 14px;
-}
-.pager button:disabled { opacity: .35; cursor: default; }
-.prose { padding: 4px 16px 16px; overflow-wrap: anywhere; }
-.prose h1, .prose h2, .prose h3 { font-stretch: 85%; line-height: 1.2; margin: 18px 0 6px; }
-.prose h1 { font-size: 20px; } .prose h2 { font-size: 17px; color: var(--ink); } .prose h3 { font-size: 15px; }
-.prose table { border-collapse: collapse; display: block; overflow-x: auto; max-width: 100%; font-size: 14px; }
-.prose th, .prose td { border-bottom: 1px solid var(--line); padding: 6px 10px 6px 0; text-align: left; white-space: nowrap; }
-.prose pre { background: var(--bg); padding: 10px; border-radius: 8px; overflow-x: auto; font-size: 13px; }
-.prose code { font-size: 13px; }
-.prose a { color: var(--up); }
-.prose img { max-width: 100%; }
-.report-link { display: block; padding: 0 16px 14px; font-size: 13px; color: var(--muted); }
+  .kq-tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr)); gap: 16px; }
+  .kq-tile { overflow: hidden; gap: 6px; padding-top: 22px; }
+  .kq-tile::before { content: ""; position: absolute; inset: 0 0 auto 0; height: 4px; background: var(--accent, var(--sky)); }
+  .t-sky { --accent: linear-gradient(90deg, #1f7aff, #6fb2ff); }
+  .t-mint { --accent: linear-gradient(90deg, #12b886, #7be3c3); }
+  .t-sun { --accent: linear-gradient(90deg, #ffb21e, #ffd77a); }
+  .t-grape { --accent: linear-gradient(90deg, #7c5cff, #b8a6ff); }
+  .kq-label { font-size: 11.5px; color: var(--ink-3); letter-spacing: .08em; text-transform: uppercase; font-weight: 600; }
+  .kq-big { font-family: var(--serif); font-weight: 400; font-size: 30px; font-variant-numeric: tabular-nums; line-height: 1.1; }
+  .kq-sub { font-size: 12.5px; color: var(--ink-2); font-variant-numeric: tabular-nums; }
+  .kq-up { color: #0b8a63; } .kq-down { color: #d83a3a; }
+  .kq-mini { height: 56px; position: relative; margin-top: 4px; }
 
-.empty { padding: 16px; color: var(--muted); }
-.notice {
-  border-radius: 12px; padding: 12px 14px; font-size: 14px;
-  background: color-mix(in srgb, var(--down) 12%, var(--surface)); border: 1px solid color-mix(in srgb, var(--down) 40%, var(--line));
-}
-.notice.soft { background: var(--surface); border-color: var(--line); color: var(--muted); }
-.notice button { background: none; border: 0; padding: 0; text-decoration: underline; cursor: pointer; color: inherit; font-weight: 600; }
-.foot { text-align: center; font-size: 12px; color: var(--muted); }
+  .kq-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 24rem), 1fr)); gap: 16px; }
+  .kq-head { display: grid; gap: 3px; }
+  .kq-chart { position: relative; min-height: 140px; }
+  .kq-chart.tall { min-height: 300px; }
+  .kq-empty { position: absolute; inset: 0; display: grid; place-items: center; text-align: center; color: var(--ink-3); font-size: 13px; padding: 12px; border: 1px dashed var(--line-2); border-radius: 14px; background: rgba(255, 255, 255, .45); }
+  .kq-tip { position: absolute; z-index: 5; pointer-events: none; background: #fff; border: 1px solid var(--line); border-radius: 12px; box-shadow: 0 10px 30px rgba(16, 33, 63, .14); padding: 8px 12px; font-size: 12.5px; white-space: nowrap; font-variant-numeric: tabular-nums; }
+  .kq-tip .d { color: var(--ink-3); font-size: 11.5px; margin-bottom: 2px; }
+  svg text { font-family: var(--sans); }
+  .kq-legend { display: flex; flex-wrap: wrap; gap: 14px; font-size: 12px; color: var(--ink-2); }
 
-/* Settings */
-dialog {
-  border: 0; border-radius: 16px; padding: 0; width: min(440px, calc(100% - 24px));
-  background: var(--surface); color: var(--ink);
-}
-dialog::backdrop { background: rgba(10,17,32,.55); }
-.sheet { padding: 20px; display: grid; gap: 14px; }
-.sheet h3 { margin: 0; font-size: 19px; font-stretch: 85%; }
-.sheet p { margin: 0; color: var(--muted); font-size: 14px; }
-label { display: grid; gap: 4px; font-size: 14px; font-weight: 600; }
-input {
-  font: inherit; font-weight: 400; padding: 10px 12px; border-radius: 10px;
-  border: 1px solid var(--line); background: var(--bg); color: var(--ink); width: 100%;
-}
-.hint { font-weight: 400; color: var(--muted); font-size: 13px; }
-.sheet-actions { display: flex; gap: 8px; justify-content: flex-end; flex-wrap: wrap; }
-.btn { border-radius: 10px; padding: 10px 16px; border: 1px solid var(--line); background: transparent; cursor: pointer; }
-.btn.primary { background: var(--ink); color: var(--surface); border-color: var(--ink); font-weight: 650; }
-.btn.danger { color: var(--down); margin-right: auto; }
+  ul.kq-alerts { margin: 0; padding: 0; list-style: none; display: grid; gap: 8px; font-size: 13px; }
+  ul.kq-alerts li a { display: flex; justify-content: space-between; gap: 10px; padding: 10px 14px; border-radius: 12px; border: 1px solid rgba(255, 91, 91, .35); background: rgba(255, 91, 91, .08); color: var(--ink); text-decoration: none; }
+  ul.kq-alerts li a span:last-child { color: var(--ink-3); white-space: nowrap; }
+  ul.kq-alerts li.ok { padding: 10px 14px; border-radius: 12px; border: 1px solid rgba(18, 184, 134, .35); background: rgba(18, 184, 134, .08); }
+  .runs { display: flex; gap: 4px; align-items: flex-end; height: 26px; }
+  .runs i { flex: 1 1 0; max-width: 12px; height: 100%; border-radius: 3px; background: var(--ink-3); opacity: .45; }
+  .runs i.success { background: var(--mint); opacity: 1; }
+  .runs i.failure { background: var(--coral); opacity: 1; height: 60%; }
+  .runs i.busy { background: var(--sun); opacity: 1; height: 80%; }
+
+  details.kq-card summary { cursor: pointer; font-weight: 600; list-style: none; display: flex; justify-content: space-between; }
+  details.kq-card summary::after { content: "Show"; color: var(--sky); font-size: 13px; }
+  details.kq-card[open] summary::after { content: "Hide"; }
+  .prose { overflow-wrap: anywhere; font-size: 14px; }
+  .prose table { border-collapse: collapse; display: block; overflow-x: auto; max-width: 100%; }
+  .prose th, .prose td { border-bottom: 1px solid var(--line); padding: 6px 10px 6px 0; text-align: left; white-space: nowrap; }
+  .prose pre { background: rgba(255,255,255,.6); padding: 10px; border-radius: 10px; overflow-x: auto; font-size: 12.5px; }
+  .prose a { color: var(--sky); }
+  .kq-foot { text-align: center; justify-self: center; }
+
+  dialog { border: 0; border-radius: 18px; padding: 0; width: min(440px, calc(100% - 24px)); background: #f7f9fb; color: var(--ink); box-shadow: 0 20px 60px rgba(16,33,63,.25); }
+  dialog::backdrop { background: rgba(16,33,63,.35); }
+  .sheet { padding: 20px; display: grid; gap: 14px; }
+  .sheet h3 { margin: 0; font-family: var(--serif); font-weight: 400; font-size: 22px; }
+  .sheet p { margin: 0; color: var(--ink-2); font-size: 14px; }
+  label { display: grid; gap: 4px; font-size: 14px; font-weight: 600; }
+  input { font: inherit; font-weight: 400; padding: 10px 12px; border-radius: 10px; border: 1px solid var(--line-2); background: #fff; color: var(--ink); width: 100%; }
+  .hint { font-weight: 400; color: var(--ink-2); font-size: 12.5px; }
+  .sheet-actions { display: flex; gap: 8px; justify-content: flex-end; flex-wrap: wrap; }
+  .btn { border-radius: 10px; padding: 10px 16px; border: 1px solid var(--line-2); background: transparent; cursor: pointer; }
+  .btn.primary { background: var(--sky); color: #fff; border-color: var(--sky); font-weight: 650; }
+  .btn.danger { color: #d83a3a; margin-right: auto; }
+
+  @media (max-width: 520px) {
+    .kq { padding: 12px 12px 24px; gap: 14px; }
+    .kq-hero, .kq-card { padding: 16px; }
+  }
 </style>
 </head>
 <body>
-
-<header class="band">
-  <div class="bar">
-    <span class="brand">K-Quant</span>
-    <div class="actions">
-      <button class="icon-btn" id="refresh" aria-label="Refresh">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M20 11a8 8 0 1 0-2.3 5.7"/><path d="M20 4v7h-7"/></svg>
-      </button>
-      <button class="icon-btn" id="open-settings" aria-label="Settings">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>
-      </button>
+<div class="kq">
+  <div class="toolbar">
+    <span id="updated">Loading…</span>
+    <div class="tb-actions">
+      <button class="tb-btn" id="refresh"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M20 11a8 8 0 1 0-2.3 5.7"/><path d="M20 4v7h-7"/></svg>Refresh</button>
+      <button class="tb-btn" id="open-settings">Settings</button>
     </div>
   </div>
-  <p class="headline" id="headline">Loading…</p>
-  <p class="sub" id="subline">Checking GitHub for the latest runs</p>
-  <div class="ticks" id="ticks" aria-hidden="true"></div>
-  <div class="ticks-legend" id="ticks-legend" hidden><span>Older</span><span>Latest run</span></div>
-</header>
 
-<main>
-  <div id="notice" hidden></div>
+  <header class="kq-card kq-hero">
+    <div class="kq-hero-top">
+      <div>
+        <p class="kq-eyebrow">Trading 212 demo · Strategy B</p>
+        <h1>K-Quant</h1>
+      </div>
+      <div class="kq-total">
+        <span class="kq-label">Demo account total</span>
+        <span class="kq-total-v" id="hdr-total">—</span>
+        <span class="kq-delta" id="hdr-delta">—</span>
+      </div>
+    </div>
+    <div class="kq-pills">
+      <span class="kq-pill ok">Shadow mode</span>
+      <span class="kq-pill sky">Demo account only</span>
+      <span class="kq-pill bad">Live trading blocked</span>
+    </div>
+    <p class="kq-lead">Session <b id="session">—</b> ·
+      shadow account <b id="equity-lead">—</b> <b id="ret-lead">—</b> since start ·
+      demo account check <b id="acct-result">—</b> ·
+      problems in the last 3 days <b id="problems">—</b></p>
+    <p class="kq-note">The Strategy B account is virtual ($10,000 start): K-Quant places no orders. Charts update after each evening run (about 23:17 Prague time). Strategy B failed its tests and is expected to lose slowly; this is a real-world experiment.</p>
+  </header>
 
-  <section aria-labelledby="h-report">
-    <h2 id="h-report">Daily report</h2>
-    <div class="panel" id="report"><div class="empty">No report loaded yet.</div></div>
+  <p class="kq-wait" id="message" hidden></p>
+
+  <section class="kq-tiles" aria-label="Headline figures">
+    <div class="kq-card kq-tile t-sky">
+      <span class="kq-label">Shadow account</span>
+      <span class="kq-big" id="equity">—</span>
+      <span class="kq-sub"><span id="ret">—</span> since <span id="started">—</span></span>
+      <div class="kq-mini" id="spark-equity"></div>
+    </div>
+    <div class="kq-card kq-tile t-mint">
+      <span class="kq-label">Last session change</span>
+      <span class="kq-big" id="day-chg">—</span>
+      <span class="kq-sub">Bars: change per session</span>
+      <div class="kq-mini" id="spark-daily"></div>
+    </div>
+    <div class="kq-card kq-tile t-sun">
+      <span class="kq-label">Closed trades · win rate</span>
+      <span class="kq-big" id="win">—</span>
+      <span class="kq-sub"><span id="closed-n">—</span> closed · <span id="open-n">—</span> open</span>
+      <div class="kq-mini" id="spark-winloss"></div>
+    </div>
+    <div class="kq-card kq-tile t-grape">
+      <span class="kq-label">Trading 212 demo account</span>
+      <span class="kq-big" id="acct-total">—</span>
+      <span class="kq-sub">Open P/L <span id="acct-ppl">—</span></span>
+      <div class="kq-mini" id="spark-acct"></div>
+    </div>
   </section>
 
-  <section aria-labelledby="h-alerts">
-    <h2 id="h-alerts">Needs attention</h2>
-    <div class="panel"><ul class="rows" id="alerts"><li><div class="empty">Nothing loaded yet.</div></li></ul></div>
+  <section class="kq-card">
+    <div class="kq-head"><h2>Shadow account value</h2>
+      <p class="kq-note">Virtual $10,000 account after Trading 212 costs, one point per US session. Dashed line: the start.</p></div>
+    <div class="kq-chart tall" id="curve"></div>
   </section>
 
-  <section aria-labelledby="h-workflows">
-    <h2 id="h-workflows">Workflows</h2>
-    <div class="panel"><ul class="rows" id="workflows"><li><div class="empty">Nothing loaded yet.</div></li></ul></div>
+  <section class="kq-grid">
+    <div class="kq-card">
+      <div class="kq-head"><h2>Change per session</h2>
+        <p class="kq-note">How much the shadow account gained or lost each session.</p></div>
+      <div class="kq-chart" id="daily"></div>
+    </div>
+    <div class="kq-card">
+      <div class="kq-head"><h2>Open positions</h2>
+        <p class="kq-note">Profit or loss since entry. Tap a bar for entry, stop and days held.</p></div>
+      <div class="kq-chart" id="positions"></div>
+    </div>
   </section>
 
-  <p class="foot" id="foot"></p>
-</main>
+  <section class="kq-grid">
+    <div class="kq-card">
+      <div class="kq-head"><h2>Next session’s buy list</h2>
+        <p class="kq-note">Strength vs SPY over 3 months. The top 3 are bought at the open, only at or below their limit.</p></div>
+      <div class="kq-chart" id="plan"></div>
+    </div>
+    <div class="kq-card">
+      <div class="kq-head"><h2>Closed trades</h2>
+        <p class="kq-note">Result of each trade after costs, oldest to newest.</p></div>
+      <div class="kq-chart" id="trades"></div>
+    </div>
+  </section>
+
+  <section class="kq-grid">
+    <div class="kq-card">
+      <div class="kq-head"><h2>Why trades were sold</h2>
+        <p class="kq-note">Count of closed trades by exit rule.</p></div>
+      <div class="kq-chart" id="exits"></div>
+    </div>
+    <div class="kq-card">
+      <div class="kq-head"><h2>Demo account holdings</h2>
+        <p class="kq-note">Open profit or loss in CZK at the latest check (<span id="acct-checked">—</span>). Your own positions; K-Quant does not trade them.</p></div>
+      <div class="kq-chart" id="holdings"></div>
+    </div>
+  </section>
+
+  <section class="kq-card">
+    <div class="kq-head"><h2>Demo account value</h2>
+      <p class="kq-note">Trading 212 demo account total in CZK, recorded once per session from the evening account check.</p></div>
+    <div class="kq-chart" id="acct"></div>
+  </section>
+
+  <section class="kq-card">
+    <div class="kq-head"><h2>K-Quant problems, last 3 days</h2>
+      <p class="kq-note">Failed runs and open issues on GitHub. Bars: your last runs, newest on the right.</p></div>
+    <div class="runs" id="runs" aria-hidden="true"></div>
+    <ul class="kq-alerts" id="alerts"></ul>
+  </section>
+
+  <details class="kq-card" id="report-box">
+    <summary>Full daily report</summary>
+    <div class="prose" id="report-text"></div>
+  </details>
+
+  <p class="kq-note kq-foot" id="about">Data comes straight from your GitHub repo. Research project only, not financial advice.</p>
+</div>
 
 <dialog id="settings">
   <form class="sheet" method="dialog" id="settings-form">
     <h3>Connect to GitHub</h3>
-    <p>The app reads your bot’s runs and reports directly from GitHub. Your token stays on this phone.</p>
+    <p>The app reads K-Quant’s runs and daily reports directly from GitHub. Your token stays on this phone.</p>
     <label>Repository
       <input id="f-repo" placeholder="owner/repo" autocomplete="off" autocapitalize="off" spellcheck="false" required>
     </label>
     <label>GitHub token
       <input id="f-token" type="password" placeholder="github_pat_…" autocomplete="off" spellcheck="false">
-      <span class="hint">Needed for a private repo. Use a fine-grained token, read-only, for this one repo.</span>
+      <span class="hint">Fine-grained, read-only, for this one repo.</span>
     </label>
     <label>Report issue title
       <input id="f-title" autocomplete="off">
@@ -235,248 +303,375 @@ input {
 </dialog>
 
 <script>
+/* ================= Settings & storage ================= */
 const DEFAULTS = { repo: "kratveer/kquant", token: "", title: "K-Quant daily report" };
-const SETTINGS_KEY = "kq-settings";
-const CACHE_KEY = "kq-cache";
+const SETTINGS_KEY = "kq-settings", CACHE_KEY = "kq-cache-v2";
 const $ = id => document.getElementById(id);
-
-function readStore(key) {
-  try { return JSON.parse(localStorage.getItem(key) || "null"); } catch { return null; }
-}
-function writeStore(key, value) {
-  try { localStorage.setItem(key, JSON.stringify(value)); } catch {}
-}
+const readStore = k => { try { return JSON.parse(localStorage.getItem(k) || "null"); } catch { return null; } };
+const writeStore = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} };
 let settings = Object.assign({}, DEFAULTS, readStore(SETTINGS_KEY) || {});
-let reports = [];
-let reportIndex = 0;
+let current = null; // last loaded data, kept for redraw on resize
 
-/* ---------- GitHub API ---------- */
-class GhError extends Error {
-  constructor(message, kind) { super(message); this.kind = kind; }
-}
-async function gh(path, { html = false } = {}) {
-  const headers = {
-    "Accept": html ? "application/vnd.github.html+json" : "application/vnd.github+json",
-    "X-GitHub-Api-Version": "2022-11-28"
-  };
+/* ================= GitHub ================= */
+class GhError extends Error { constructor(m, kind) { super(m); this.kind = kind; } }
+async function gh(path) {
+  const headers = { "Accept": "application/vnd.github.full+json", "X-GitHub-Api-Version": "2022-11-28" };
   if (settings.token) headers.Authorization = "Bearer " + settings.token;
   let res;
-  try {
-    res = await fetch("https://api.github.com" + path, { headers, cache: "no-store" });
-  } catch {
-    throw new GhError("No connection to GitHub.", "offline");
-  }
+  try { res = await fetch("https://api.github.com" + path, { headers, cache: "no-store" }); }
+  catch { throw new GhError("No connection to GitHub.", "offline"); }
   if (res.ok) return res.json();
-  const [owner, repo] = settings.repo.split("/");
   if (res.status === 401) throw new GhError("GitHub rejected the token. It may have expired. Add a new one in Settings.", "auth");
-  if (res.status === 403 && res.headers.get("x-ratelimit-remaining") === "0") {
-    throw new GhError(settings.token
-      ? "GitHub’s hourly request limit is used up. Try again later."
-      : "GitHub’s hourly limit for requests without a token is used up. Add a token in Settings.", "limit");
-  }
-  if (res.status === 404 || res.status === 403) {
-    throw new GhError(`Can’t open ${owner}/${repo}. If it’s private, add a token with access to it in Settings, or check the name.`, "access");
-  }
+  if (res.status === 403 && res.headers.get("x-ratelimit-remaining") === "0")
+    throw new GhError(settings.token ? "GitHub’s hourly request limit is used up. Try again later." : "GitHub’s hourly limit without a token is used up. Add a token in Settings.", "limit");
+  if (res.status === 404 || res.status === 403)
+    throw new GhError(`Can’t open ${settings.repo}. Add a token with access to it in Settings, or check the name.`, "access");
   throw new GhError(`GitHub answered with error ${res.status}.`, "other");
 }
-
 const repoPath = () => "/repos/" + settings.repo.split("/").map(encodeURIComponent).join("/");
 
-async function fetchRuns() {
-  const data = await gh(repoPath() + "/actions/runs?per_page=40");
-  return (data.workflow_runs || []).map(r => ({
-    name: r.name, title: r.display_title, status: r.status, conclusion: r.conclusion,
-    at: r.run_started_at || r.created_at, url: r.html_url, attempt: r.run_attempt, branch: r.head_branch
-  }));
+function parseBlock(body) {
+  if (!body) return null;
+  const i = body.lastIndexOf("KQUANT-DATA-BEGIN"), k = body.lastIndexOf("KQUANT-DATA-END");
+  if (i < 0 || k < i) return null;
+  let raw = body.slice(i + "KQUANT-DATA-BEGIN".length, k).trim();
+  raw = raw.replace(/^```\w*\s*/, "").replace(/\s*```$/, ""); // in case it sits in a code fence
+  try { return JSON.parse(raw); } catch { return null; }
 }
 
-async function fetchIssuesAndReports() {
-  const issues = (await gh(repoPath() + "/issues?state=all&sort=created&direction=desc&per_page=60", { html: true }))
-    .filter(i => !i.pull_request);
+async function fetchAll() {
+  const [runsData, issuesRaw] = await Promise.all([
+    gh(repoPath() + "/actions/runs?per_page=40"),
+    gh(repoPath() + "/issues?state=all&sort=created&direction=desc&per_page=60")
+  ]);
+  const runs = (runsData.workflow_runs || []).map(r => ({
+    name: r.name, status: r.status, conclusion: r.conclusion, at: r.run_started_at || r.created_at,
+    url: r.html_url, attempt: r.run_attempt
+  }));
+  const issues = issuesRaw.filter(i => !i.pull_request);
   const needle = settings.title.trim().toLowerCase();
-  const reportIssues = needle ? issues.filter(i => i.title.toLowerCase().includes(needle)) : [];
-  const found = [];
+  const reportIssues = issues.filter(i => needle && i.title.toLowerCase().includes(needle));
 
-  // Reports posted as comments on one issue (newest issue first)
+  // Collect candidate report posts, newest first: comments on report issues, then issue bodies.
+  const posts = [];
   for (const issue of reportIssues.slice(0, 3)) {
     if (issue.comments > 0) {
-      const perPage = 100;
-      const last = Math.ceil(issue.comments / perPage);
-      let comments = await gh(`${repoPath()}/issues/${issue.number}/comments?per_page=${perPage}&page=${last}`, { html: true });
-      if (comments.length < 10 && last > 1) {
-        const prev = await gh(`${repoPath()}/issues/${issue.number}/comments?per_page=${perPage}&page=${last - 1}`, { html: true });
-        comments = prev.concat(comments);
-      }
-      comments.reverse().forEach(c => found.push({ html: c.body_html || "", at: c.created_at, url: c.html_url }));
+      const last = Math.ceil(issue.comments / 100);
+      let cs = await gh(`${repoPath()}/issues/${issue.number}/comments?per_page=100&page=${last}`);
+      if (cs.length < 5 && last > 1) cs = (await gh(`${repoPath()}/issues/${issue.number}/comments?per_page=100&page=${last - 1}`)).concat(cs);
+      cs.forEach(c => posts.push({ body: c.body, html: c.body_html, at: c.created_at, url: c.html_url }));
     }
-    // Reports posted as a new issue each time (or in the issue body)
-    if (issue.body_html && issue.body_html.trim()) {
-      found.push({ html: issue.body_html, at: issue.created_at, url: issue.html_url });
-    }
+    posts.push({ body: issue.body, html: issue.body_html, at: issue.created_at, url: issue.html_url });
   }
-  found.sort((a, b) => new Date(b.at) - new Date(a.at));
+  posts.sort((a, b) => new Date(b.at) - new Date(a.at));
+  let report = null;
+  for (const p of posts) { const d = parseBlock(p.body); if (d) { report = { data: d, html: p.html, at: p.at, url: p.url }; break; } }
+  if (!report && posts.length) report = { data: null, html: posts[0].html, at: posts[0].at, url: posts[0].url };
 
-  const openIssues = issues
-    .filter(i => i.state === "open" && !reportIssues.includes(i))
-    .map(i => ({ kind: "issue", title: i.title, number: i.number, at: i.updated_at, url: i.html_url }));
+  const cutoff = Date.now() - 3 * 864e5;
+  const problems = issues.filter(i => i.state === "open" && !reportIssues.includes(i))
+    .map(i => ({ title: i.title, at: i.updated_at, url: i.html_url }))
+    .concat(runs.filter(r => runState(r) === "failure" && new Date(r.at) > cutoff)
+      .map(r => ({ title: `Run failed: ${r.name}${r.attempt > 1 ? `, attempt #${r.attempt}` : ""}`, at: r.at, url: r.url })))
+    .sort((a, b) => new Date(b.at) - new Date(a.at));
 
-  return { reports: found.slice(0, 30), openIssues };
+  return { at: new Date().toISOString(), repo: settings.repo, runs, problems, report, hadReportIssue: reportIssues.length > 0 };
+}
+function runState(r) {
+  if (r.status !== "completed") return "busy";
+  if (r.conclusion === "success") return "success";
+  if (["failure", "timed_out", "startup_failure"].includes(r.conclusion)) return "failure";
+  return "idle";
 }
 
-/* ---------- Helpers ---------- */
+/* ================= Derived values (same maths as the old dashboard) ================= */
+function derive(d) {
+  if (!d) return null;
+  const acc = d.account || {};
+  const curve = (d.curve || []).map(([date, equity]) => ({ date, equity }));
+  const daily = curve.slice(1).map((r, i) => ({ date: r.date, change: r.equity / curve[i].equity - 1 }));
+  const trades = d.closed || [];
+  const overall = acc.total != null && (acc.realized != null || acc.unrealized != null)
+    ? (() => { const pnl = (acc.realized || 0) + (acc.unrealized || 0); return { pnl, pct: pnl / (acc.total - pnl) }; })() : null;
+  const exits = Array.from(d3.rollup(trades, v => v.length, t => t.why), ([why, n]) => ({ why: String(why ?? "other"), n })).sort((a, b) => b.n - a.n);
+  return {
+    d, acc, curve, daily, trades, overall, exits,
+    ret: d.start ? d.equity / d.start - 1 : null,
+    positions: (d.open || []).map(p => ({ ...p, pnl: p.last / p.entry - 1 })),
+    plan: d.plan || [],
+    winloss: [{ result: "won", n: trades.filter(t => t.net > 0).length }, { result: "lost", n: trades.filter(t => !(t.net > 0)).length }],
+    holdings: (acc.holdings || []).filter(h => fin(h.ppl)),
+    acctCurve: (d.acct_curve || []).map(([date, total]) => ({ date, total }))
+  };
+}
+
+/* ================= Formatting ================= */
+const C = { sky: "#1f7aff", mint: "#12b886", coral: "#ff5b5b", sun: "#ffb21e", grape: "#7c5cff", ink: "#10213f", ink2: "#4a5a78", ink3: "#8090ab", grid: "rgba(16,33,63,.08)" };
+const fin = x => x != null && isFinite(x);
+const usd = x => fin(x) ? "$" + d3.format(",.2f")(x) : "—";
+const usd0 = x => fin(x) ? "$" + d3.format(",.0f")(x) : "—";
+const pct = x => fin(x) ? d3.format("+.2%")(x) : "—";
+const czk = x => fin(x) ? d3.format(",.0f")(x) + " CZK" : "—";
+const px = x => fin(x) ? d3.format(",.2f")(x) : "—";
+const EMPTY = "Fills in after the first daily report.";
 function ago(iso) {
-  if (!iso) return "";
   const s = Math.round((Date.now() - new Date(iso)) / 1000);
   if (s < 60) return "just now";
   const m = Math.round(s / 60); if (m < 60) return m + " min ago";
   const h = Math.round(m / 60); if (h < 24) return h + " h ago";
-  const d = Math.round(h / 24); if (d < 14) return d + (d === 1 ? " day ago" : " days ago");
-  return new Date(iso).toLocaleDateString();
+  const dd = Math.round(h / 24); return dd + (dd === 1 ? " day ago" : " days ago");
 }
-function fullDate(iso) {
-  return new Date(iso).toLocaleString(undefined, { weekday: "short", day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" });
-}
-function state(run) {
-  if (run.status !== "completed") return "busy";
-  if (run.conclusion === "success") return "success";
-  if (["failure", "timed_out", "startup_failure"].includes(run.conclusion)) return "failure";
-  return "idle";
-}
-function esc(s) {
-  return String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "\"": "&quot;", "'": "&#39;" }[c]));
+function setText(id, v, signVal) {
+  const el = $(id); el.textContent = v == null ? "—" : v;
+  el.classList.toggle("kq-up", signVal > 0); el.classList.toggle("kq-down", signVal < 0);
 }
 
-/* ---------- Render ---------- */
-function renderHealth(runs) {
-  const ticks = $("ticks");
-  ticks.innerHTML = "";
-  if (!runs.length) {
-    $("headline").textContent = "No runs yet";
-    $("subline").textContent = "GitHub hasn’t recorded any workflow runs for this repo.";
-    $("ticks-legend").hidden = true;
-    return;
+/* ================= Charts ================= */
+const textW = (svg, s, size = 11, weight = 400) => { const t = svg.append("text").attr("font-size", size).attr("font-weight", weight).text(s); const w = t.node().getComputedTextLength(); t.remove(); return w; };
+const empty = (box, msg) => { const e = document.createElement("div"); e.className = "kq-empty"; e.textContent = msg; box.append(e); };
+function tooltip(box) {
+  const tip = d3.select(box).append("div").attr("class", "kq-tip").style("display", "none");
+  return {
+    show(x, y, title, lines) {
+      tip.style("display", null).selectAll("*").remove();
+      tip.append("div").attr("class", "d").text(title);
+      for (const l of lines) tip.append("div").text(l);
+      const bw = box.clientWidth, tw = tip.node().offsetWidth;
+      tip.style("left", Math.min(Math.max(0, x + 12), bw - tw) + "px").style("top", Math.max(0, y - 44) + "px");
+    },
+    hide() { tip.style("display", "none"); }
+  };
+}
+function lineChart(box, data, { key, color, ref, fmt, h = 260, fill = true, axis = true, label = true }) {
+  box.replaceChildren();
+  if (!data || !data.length) { if (axis) empty(box, EMPTY); return; }
+  const pts = data.map(d => ({ date: new Date(d.date + "T00:00:00Z"), v: +d[key], label: d.date }));
+  const W = Math.max(200, box.clientWidth || 600), H = h;
+  const lo0 = d3.min(pts, d => d.v), hi0 = d3.max(pts, d => d.v);
+  const lo = ref != null ? Math.min(ref, lo0) : lo0, hi = ref != null ? Math.max(ref, hi0) : hi0;
+  const pad = Math.max((hi - lo) * 0.18, Math.abs(hi) * 0.002, 1);
+  const svg = d3.select(box).append("svg").attr("width", "100%").attr("viewBox", `0 0 ${W} ${H}`);
+  const y = d3.scaleLinear([lo - pad, hi + pad], [H - (axis ? 26 : 4), 8]);
+  if (axis) y.nice(4);
+  const yt = axis ? y.ticks(4) : [];
+  const lw = axis ? Math.max(...yt.map(t => textW(svg, fmt(t)))) + 10 : 2;
+  const endW = label ? textW(svg, fmt(pts[pts.length - 1].v), 12) + 14 : 4;
+  const x0 = pts[0].date, x1 = pts.length > 1 ? pts[pts.length - 1].date : d3.utcDay.offset(pts[0].date, 1);
+  const x = d3.scaleUtc([x0, x1], [lw, W - endW]);
+  for (const t of yt) {
+    svg.append("line").attr("x1", lw).attr("x2", W - endW).attr("y1", y(t)).attr("y2", y(t)).attr("stroke", C.grid);
+    svg.append("text").attr("x", lw - 8).attr("y", y(t)).attr("dy", ".32em").attr("text-anchor", "end").attr("font-size", 11).attr("fill", C.ink3).text(fmt(t));
   }
-  runs.slice(0, 24).reverse().forEach(r => {
-    const t = document.createElement("span");
-    t.className = "tick " + state(r);
-    t.title = `${r.name}: ${r.conclusion || r.status}, ${ago(r.at)}`;
-    ticks.appendChild(t);
+  if (ref != null) svg.append("line").attr("x1", lw).attr("x2", W - endW).attr("y1", y(ref)).attr("y2", y(ref)).attr("stroke", C.ink3).attr("stroke-dasharray", "4 4");
+  if (axis) {
+    const ax = svg.append("g").attr("transform", `translate(0,${H - 26})`)
+      .call(d3.axisBottom(x).ticks(Math.max(2, Math.floor((W - lw - endW) / 90))).tickFormat(d3.utcFormat("%b %-d")).tickSizeOuter(0))
+      .attr("font-size", null).attr("font-family", null);
+    ax.selectAll("text").attr("font-size", 11).attr("fill", C.ink3);
+    ax.selectAll("line,path").attr("stroke", C.grid);
+  }
+  const gid = "g" + Math.random().toString(36).slice(2);
+  const grad = svg.append("defs").append("linearGradient").attr("id", gid).attr("x1", 0).attr("x2", 0).attr("y1", 0).attr("y2", 1);
+  [[0, .32], [.5, .12], [1, 0]].forEach(([o, a]) => grad.append("stop").attr("offset", o).attr("style", `stop-color:${color};stop-opacity:${a}`));
+  if (fill) svg.append("path").datum(pts).attr("fill", `url(#${gid})`).attr("d", d3.area().x(d => x(d.date)).y0(y.range()[0]).y1(d => y(d.v)));
+  svg.append("path").datum(pts).attr("fill", "none").attr("stroke", color).attr("stroke-width", axis ? 2.5 : 2)
+    .attr("stroke-linecap", "round").attr("stroke-linejoin", "round").attr("d", d3.line().x(d => x(d.date)).y(d => y(d.v)));
+  const last = pts[pts.length - 1];
+  svg.append("circle").attr("cx", x(last.date)).attr("cy", y(last.v)).attr("r", 4).attr("fill", "#fff").attr("stroke", color).attr("stroke-width", 2.5);
+  if (label) svg.append("text").attr("x", x(last.date) + 8).attr("y", y(last.v)).attr("dy", ".32em").attr("font-size", 12).attr("font-weight", 600).attr("fill", C.ink).text(fmt(last.v));
+  if (!axis) return;
+  const tip = tooltip(box);
+  const dot = svg.append("circle").attr("r", 5).attr("fill", color).attr("stroke", "#fff").attr("stroke-width", 2).style("display", "none");
+  const bis = d3.bisector(d => d.date).center;
+  svg.append("rect").attr("x", lw).attr("y", 0).attr("width", Math.max(1, W - lw - endW)).attr("height", H).attr("fill", "transparent")
+    .on("pointermove pointerdown", ev => {
+      const d = pts[bis(pts, x.invert(d3.pointer(ev)[0]))];
+      dot.style("display", null).attr("cx", x(d.date)).attr("cy", y(d.v));
+      const s = box.clientWidth / W;
+      tip.show(x(d.date) * s, y(d.v) * s, d.label, [fmt(d.v)]);
+    })
+    .on("pointerleave", () => { tip.hide(); dot.style("display", "none"); });
+}
+function hbars(box, data, { label, value, fmt, color, tip: tipLines, rowH = 30, mid = 0 }) {
+  box.replaceChildren();
+  if (!data || !data.length) { empty(box, EMPTY); return; }
+  const W = Math.max(240, box.clientWidth || 500), H = Math.max(120, data.length * rowH + 16);
+  const svg = d3.select(box).append("svg").attr("width", "100%").attr("viewBox", `0 0 ${W} ${H}`);
+  const lw = Math.max(...data.map(d => textW(svg, label(d), 12, 600))) + 16;
+  const vw = Math.max(...data.map(d => textW(svg, fmt(value(d)), 12))) + 12;
+  const vals = data.map(value);
+  const lo = Math.min(mid, d3.min(vals)), hi = Math.max(mid, d3.max(vals));
+  const x = d3.scaleLinear([lo, hi === lo ? lo + 1 : hi], [lw + (lo < mid ? vw : 0), W - vw]);
+  const y = d3.scaleBand(data.map((d, i) => i), [8, H - 8]).padding(.28);
+  svg.append("line").attr("x1", x(mid)).attr("x2", x(mid)).attr("y1", 4).attr("y2", H - 4).attr("stroke", C.ink3).attr("stroke-opacity", .5);
+  const tip = tooltip(box);
+  data.forEach((d, i) => {
+    const v = value(d), c = color(d, v);
+    svg.append("text").attr("x", lw - 10).attr("y", y(i) + y.bandwidth() / 2).attr("dy", ".32em").attr("text-anchor", "end").attr("font-size", 12).attr("font-weight", 600).attr("fill", C.ink).text(label(d));
+    const x0 = Math.min(x(mid), x(v)), w = Math.max(2, Math.abs(x(v) - x(mid)));
+    svg.append("rect").attr("x", x0).attr("y", y(i)).attr("width", w).attr("height", y.bandwidth()).attr("rx", Math.min(6, y.bandwidth() / 2)).attr("fill", c)
+      .on("pointermove pointerdown", ev => { const [mx, my] = d3.pointer(ev, box); tip.show(mx, my, label(d), tipLines(d)); })
+      .on("pointerleave", () => tip.hide());
+    svg.append("text").attr("x", v >= mid ? x(v) + 6 : x(v) - 6).attr("y", y(i) + y.bandwidth() / 2).attr("dy", ".32em")
+      .attr("text-anchor", v >= mid ? "start" : "end").attr("font-size", 12).attr("fill", C.ink2).text(fmt(v));
   });
-  $("ticks-legend").hidden = false;
-
-  const latest = runs[0];
-  const st = state(latest);
-  const words = { success: "Last run passed", failure: "Last run failed", busy: "Running now", idle: "Last run " + (latest.conclusion || "stopped") };
-  $("headline").textContent = words[st];
-  const recentFails = runs.filter(r => state(r) === "failure" && Date.now() - new Date(r.at) < 864e5).length;
-  $("subline").textContent = `${latest.name}, ${ago(latest.at)}` +
-    (recentFails ? `. ${recentFails} failed run${recentFails > 1 ? "s" : ""} in the last 24 h.` : ".");
 }
-
-function renderWorkflows(runs) {
-  const list = $("workflows");
-  const byName = new Map();
-  runs.forEach(r => { if (!byName.has(r.name)) byName.set(r.name, r); });
-  if (!byName.size) { list.innerHTML = `<li><div class="empty">No workflows have run yet.</div></li>`; return; }
-  list.innerHTML = [...byName.values()].map(r => `
-    <li><a href="${esc(r.url)}" target="_blank" rel="noopener">
-      <span class="dot ${state(r)}"></span>
-      <span><div class="row-title">${esc(r.name)}</div>
-      <div class="row-meta">${esc(r.conclusion || r.status)}${r.attempt > 1 ? `, attempt ${r.attempt}` : ""}</div></span>
-      <span class="when">${ago(r.at)}</span>
-    </a></li>`).join("");
-}
-
-function renderAlerts(runs, openIssues) {
-  const cutoff = Date.now() - 3 * 864e5;
-  const failed = runs.filter(r => state(r) === "failure" && new Date(r.at) > cutoff)
-    .map(r => ({ kind: "run", title: `${r.name} failed`, meta: r.attempt > 1 ? `Attempt ${r.attempt}` : r.title, at: r.at, url: r.url }));
-  const items = openIssues.map(i => ({ ...i, meta: `Open issue #${i.number}` })).concat(failed)
-    .sort((a, b) => new Date(b.at) - new Date(a.at));
-  const list = $("alerts");
-  if (!items.length) { list.innerHTML = `<li><div class="empty">No failed runs in the last 3 days and no open issues.</div></li>`; return; }
-  list.innerHTML = items.slice(0, 15).map(i => `
-    <li><a href="${esc(i.url)}" target="_blank" rel="noopener">
-      <span class="dot ${i.kind === "run" ? "failure" : "busy"}"></span>
-      <span><div class="row-title">${esc(i.title)}</div><div class="row-meta">${esc(i.meta)}</div></span>
-      <span class="when">${ago(i.at)}</span>
-    </a></li>`).join("");
-}
-
-function renderReport() {
-  const box = $("report");
-  if (!reports.length) {
-    box.innerHTML = `<div class="empty">No report found. The app looks for an issue titled “${esc(settings.title)}”. Change the title in Settings if your workflow uses a different one.</div>`;
-    return;
+function vbars(box, data, { value, fmt, label, small = false, h = 220 }) {
+  box.replaceChildren();
+  if (!data || !data.length) { if (!small) empty(box, EMPTY); return; }
+  const W = Math.max(160, box.clientWidth || 500), H = small ? 56 : h;
+  const svg = d3.select(box).append("svg").attr("width", "100%").attr("viewBox", `0 0 ${W} ${H}`);
+  const m = Math.max(1e-9, d3.max(data.map(value).map(Math.abs)));
+  const y = d3.scaleLinear([-m, m], [H - (small ? 2 : 20), small ? 2 : 10]);
+  const lw = small ? 0 : textW(svg, fmt(m)) + 10;
+  const x = d3.scaleBand(data.map((d, i) => i), [lw, W]).padding(.25);
+  if (!small) for (const t of [-m, 0, m]) {
+    svg.append("line").attr("x1", lw).attr("x2", W).attr("y1", y(t)).attr("y2", y(t)).attr("stroke", t === 0 ? C.ink3 : C.grid).attr("stroke-opacity", t === 0 ? .5 : 1);
+    svg.append("text").attr("x", lw - 8).attr("y", y(t)).attr("dy", ".32em").attr("text-anchor", "end").attr("font-size", 11).attr("fill", C.ink3).text(fmt(t));
   }
-  const r = reports[reportIndex];
-  // body_html is rendered and sanitized by GitHub
-  box.innerHTML = `
-    <div class="report-head">
-      <span class="report-date">${esc(fullDate(r.at))}</span>
-      <span class="pager">
-        <button id="older" ${reportIndex >= reports.length - 1 ? "disabled" : ""} aria-label="Older report">Older</button>
-        <button id="newer" ${reportIndex === 0 ? "disabled" : ""} aria-label="Newer report">Newer</button>
-      </span>
-    </div>
-    <div class="prose">${r.html || "<p>This report is empty.</p>"}</div>
-    <a class="report-link" href="${esc(r.url)}" target="_blank" rel="noopener">Open on GitHub</a>`;
-  $("older").onclick = () => { reportIndex++; renderReport(); };
-  $("newer").onclick = () => { reportIndex--; renderReport(); };
+  const tip = small ? null : tooltip(box);
+  data.forEach((d, i) => {
+    const v = value(d);
+    const r = svg.append("rect").attr("x", x(i)).attr("width", x.bandwidth()).attr("y", Math.min(y(0), y(v)))
+      .attr("height", Math.max(1.5, Math.abs(y(v) - y(0)))).attr("rx", Math.min(4, x.bandwidth() / 2)).attr("fill", v >= 0 ? C.mint : C.coral);
+    if (tip) r.on("pointermove pointerdown", ev => { const [mx, my] = d3.pointer(ev, box); tip.show(mx, my, label(d), [fmt(v)]); }).on("pointerleave", () => tip.hide());
+  });
+  if (!small && data.length >= 5) for (const i of [0, data.length - 1])
+    svg.append("text").attr("x", x(i) + x.bandwidth() / 2).attr("y", H - 4).attr("text-anchor", i ? "end" : "start").attr("font-size", 11).attr("fill", C.ink3).text(label(data[i]));
+}
+function donut(box, data) {
+  box.replaceChildren();
+  const total = d3.sum(data || [], d => d.n);
+  if (!total) return;
+  const W = Math.max(160, box.clientWidth || 300), H = 56, r = H / 2 - 4;
+  const svg = d3.select(box).append("svg").attr("width", "100%").attr("viewBox", `0 0 ${W} ${H}`);
+  const g = svg.append("g").attr("transform", `translate(${r + 6},${H / 2})`);
+  const col = { won: C.mint, lost: C.coral };
+  g.selectAll("path").data(d3.pie().sort(null).value(d => d.n)(data)).join("path")
+    .attr("d", d3.arc().innerRadius(r * .62).outerRadius(r).cornerRadius(3).padAngle(.03)).attr("fill", a => col[a.data.result]);
+  data.forEach((d, i) => {
+    svg.append("rect").attr("x", 2 * r + 20).attr("y", H / 2 - 16 + i * 20).attr("width", 10).attr("height", 10).attr("rx", 3).attr("fill", col[d.result]);
+    svg.append("text").attr("x", 2 * r + 36).attr("y", H / 2 - 11 + i * 20).attr("dy", ".32em").attr("font-size", 12).attr("fill", C.ink2).text(`${d.n} ${d.result}`);
+  });
 }
 
-function showNotice(text, soft = false, action) {
-  const n = $("notice");
-  if (!text) { n.hidden = true; return; }
-  n.className = "notice" + (soft ? " soft" : "");
-  n.innerHTML = esc(text) + (action ? ` <button id="notice-action">${esc(action.label)}</button>` : "");
-  n.hidden = false;
-  if (action) $("notice-action").onclick = action.run;
+/* ================= Render ================= */
+function message(text, bad = false, action) {
+  const m = $("message");
+  if (!text) { m.hidden = true; return; }
+  m.className = "kq-wait" + (bad ? " bad" : "");
+  m.textContent = text;
+  if (action) { const b = document.createElement("button"); b.textContent = action.label; b.onclick = action.run; m.append(" ", b); }
+  m.hidden = false;
 }
 
-function renderAll(data) {
-  renderHealth(data.runs);
-  renderWorkflows(data.runs);
-  renderAlerts(data.runs, data.openIssues);
-  reports = data.reports;
-  reportIndex = Math.min(reportIndex, Math.max(0, reports.length - 1));
-  renderReport();
-  $("foot").textContent = `${settings.repo}. Updated ${fullDate(data.at)}.`;
+function render(data) {
+  current = data;
+  const v = data.report && data.report.data ? derive(data.report.data) : null;
+  const r = v ? v.d : null, acc = v ? v.acc : {};
+
+  setText("hdr-total", acc.total != null ? czk(acc.total) : null);
+  if (v && v.overall) {
+    const o = v.overall, arrow = o.pnl > 0 ? "▲" : (o.pnl < 0 ? "▼" : "●");
+    setText("hdr-delta", `${arrow} ${d3.format("+,.0f")(o.pnl)} CZK (${d3.format("+.2%")(o.pct)}) overall`, o.pnl);
+  } else setText("hdr-delta", null);
+  setText("session", r ? r.session : null);
+  setText("equity-lead", r ? usd(r.equity) : null);
+  setText("ret-lead", v ? pct(v.ret) : null, v && v.ret);
+  setText("acct-result", acc.result ?? null, acc.result ? (acc.result === "OK" ? 1 : -1) : 0);
+  setText("problems", String(data.problems.length), data.problems.length ? -1 : 1);
+  setText("equity", r ? usd(r.equity) : null);
+  setText("ret", v ? pct(v.ret) : null, v && v.ret);
+  setText("started", r ? r.started : null);
+  const lastChg = v && v.daily.length ? v.daily[v.daily.length - 1].change : null;
+  setText("day-chg", lastChg != null ? pct(lastChg) : null, lastChg);
+  setText("win", r ? (r.win_rate == null ? "n/a" : d3.format(".0%")(r.win_rate)) : null);
+  setText("closed-n", r ? String(r.closed_n) : null);
+  setText("open-n", r ? String(r.open_n) : null);
+  setText("acct-total", acc.total != null ? czk(acc.total) : null);
+  setText("acct-ppl", acc.unrealized != null ? czk(acc.unrealized) : null, acc.unrealized);
+  setText("acct-checked", acc.checked ?? null);
+
+  lineChart($("spark-equity"), v && v.curve, { key: "equity", color: C.sky, ref: 10000, fmt: usd0, h: 56, axis: false, label: false });
+  vbars($("spark-daily"), v && v.daily.slice(-30), { value: d => d.change, fmt: pct, label: d => d.date, small: true });
+  donut($("spark-winloss"), v && v.winloss);
+  lineChart($("spark-acct"), v && v.acctCurve, { key: "total", color: C.grape, fmt: czk, h: 56, axis: false, label: false });
+  lineChart($("curve"), v && v.curve, { key: "equity", color: C.sky, ref: 10000, fmt: usd0, h: 300 });
+  lineChart($("acct"), v && v.acctCurve, { key: "total", color: C.grape, fmt: x => d3.format(",.0f")(x), h: 220 });
+  vbars($("daily"), v && v.daily, { value: d => d.change, fmt: x => d3.format("+.1%")(x), label: d => d.date });
+  hbars($("positions"), v && v.positions, {
+    label: d => d.ticker, value: d => d.pnl, fmt: x => d3.format("+.1%")(x), color: (d, x) => x >= 0 ? C.mint : C.coral,
+    tip: d => [`P/L ${pct(d.pnl)}`, `Entry $${px(d.entry)} · stop $${px(d.stop)}`, `Last $${px(d.last)} · day ${d.day}`]
+  });
+  hbars($("plan"), v && v.plan, {
+    label: d => d.ticker, value: d => d.rank, fmt: x => d3.format("+.0%")(x), color: (d, x) => x >= 0 ? C.sun : C.coral,
+    tip: d => [`Strength vs SPY ${pct(d.rank)}`, `Signal close $${px(d.close)}`, `Buy only if open ≤ $${px(d.limit)}`]
+  });
+  vbars($("trades"), v && v.trades, { value: d => d.net, fmt: x => d3.format("+.1%")(x), label: d => `${d.ticker} · sold ${d.exit_date}` });
+  hbars($("exits"), v && v.exits, {
+    label: d => d.why.replaceAll("_", " ").toLowerCase(), value: d => d.n, fmt: x => d3.format(",")(x), color: () => C.grape,
+    tip: d => [`${d.n} trade${d.n === 1 ? "" : "s"}`]
+  });
+  hbars($("holdings"), v && v.holdings, {
+    label: d => d.ticker, value: d => d.ppl, fmt: x => d3.format(",.0f")(x), color: (d, x) => x >= 0 ? C.mint : C.coral,
+    tip: d => [`P/L ${czk(d.ppl)}`, `${d3.format(",.4~f")(d.quantity)} shares · avg $${px(d.average_price)} · now $${px(d.current_price)}`]
+  });
+
+  // Problems
+  const runsBox = $("runs"); runsBox.replaceChildren();
+  data.runs.slice(0, 30).reverse().forEach(run => { const i = document.createElement("i"); i.className = runState(run); runsBox.append(i); });
+  const ul = $("alerts"); ul.replaceChildren();
+  if (!data.problems.length) { const li = document.createElement("li"); li.className = "ok"; li.textContent = "No problems. Everything ran cleanly."; ul.append(li); }
+  for (const p of data.problems.slice(0, 15)) {
+    const li = document.createElement("li"), a = document.createElement("a");
+    a.href = p.url; a.target = "_blank"; a.rel = "noopener";
+    const t = document.createElement("span"); t.textContent = p.title;
+    const w = document.createElement("span"); w.textContent = ago(p.at);
+    a.append(t, w); li.append(a); ul.append(li);
+  }
+
+  // Full report text (GitHub renders and sanitizes body_html); hide a data block shown as code
+  const box = $("report-box"), txt = $("report-text");
+  if (data.report && data.report.html) {
+    txt.innerHTML = data.report.html;
+    txt.querySelectorAll("pre, .highlight").forEach(el => { if (el.textContent.includes("KQUANT-DATA")) el.remove(); });
+    const link = document.createElement("p"); const a = document.createElement("a");
+    a.href = data.report.url; a.target = "_blank"; a.rel = "noopener"; a.textContent = "Open on GitHub";
+    link.append(a); txt.append(link);
+    box.hidden = false;
+  } else box.hidden = true;
+
+  // Waiting / status notes
+  if (!data.report) message(data.hadReportIssue ? "The report issue has no posts yet." :
+    `No daily report has arrived yet. The app looks for an issue titled “${settings.title}”; the first report comes after the next evening run and every chart then fills in by itself.`);
+  else if (!data.report.data) message("The latest report has no K-Quant data block (KQUANT-DATA-BEGIN … KQUANT-DATA-END), so the charts can’t fill in. The report text is below.");
+  else message("");
+
+  $("updated").textContent = `Updated ${ago(data.at)}` + (data.report ? `, report ${ago(data.report.at)}` : "");
 }
 
-/* ---------- Load ---------- */
+/* ================= Load ================= */
 let loading = false;
 async function load() {
   if (loading) return;
-  loading = true;
-  $("refresh").classList.add("spin");
+  if (!window.d3) { message("The chart library didn’t load. Connect to the internet and tap Refresh.", true); return; }
+  loading = true; $("refresh").classList.add("spin");
   try {
-    const [runs, issueData] = await Promise.all([fetchRuns(), fetchIssuesAndReports()]);
-    const data = { at: new Date().toISOString(), runs, ...issueData };
-    writeStore(CACHE_KEY, { ...data, repo: settings.repo, reports: data.reports.slice(0, 10) });
-    renderAll(data);
-    showNotice("");
+    const data = await fetchAll();
+    writeStore(CACHE_KEY, data);
+    render(data);
   } catch (e) {
     const cached = readStore(CACHE_KEY);
-    if (cached && cached.repo === settings.repo) renderAll(cached);
-    const suffix = cached && cached.repo === settings.repo ? ` Showing data from ${ago(cached.at)}.` : "";
+    const usable = cached && cached.repo === settings.repo;
+    if (usable) render(cached);
     const fix = ["auth", "access", "limit"].includes(e.kind) ? { label: "Open Settings", run: openSettings } : null;
-    showNotice((e.message || "Couldn’t load data.") + suffix, e.kind === "offline", fix);
-    if (!cached || cached.repo !== settings.repo) {
-      $("headline").textContent = e.kind === "offline" ? "Offline" : "Can’t reach your repo";
-      $("subline").textContent = e.kind === "offline" ? "Connect to the internet and tap refresh." : "Check the message below.";
-    }
-  } finally {
-    loading = false;
-    $("refresh").classList.remove("spin");
-  }
+    message((e.message || "Couldn’t load data.") + (usable ? ` Showing data from ${ago(cached.at)}.` : ""), e.kind !== "offline", fix);
+    if (!usable) $("updated").textContent = "Not loaded";
+  } finally { loading = false; $("refresh").classList.remove("spin"); }
 }
 
-/* ---------- Settings ---------- */
 function openSettings() {
-  $("f-repo").value = settings.repo;
-  $("f-token").value = settings.token;
-  $("f-title").value = settings.title;
+  $("f-repo").value = settings.repo; $("f-token").value = settings.token; $("f-title").value = settings.title;
   $("settings").showModal();
 }
 $("open-settings").onclick = openSettings;
@@ -486,22 +681,27 @@ $("settings-form").addEventListener("submit", () => {
   const repo = $("f-repo").value.trim().replace(/^https?:\/\/github\.com\//, "").replace(/\/+$/, "");
   settings = { repo: repo || DEFAULTS.repo, token: $("f-token").value.trim(), title: $("f-title").value.trim() || DEFAULTS.title };
   writeStore(SETTINGS_KEY, settings);
-  reportIndex = 0;
   load();
 });
 $("refresh").onclick = load;
 
-// Refresh when you come back to the app after 5+ minutes
-let lastShown = Date.now();
+let hiddenAt = Date.now();
 document.addEventListener("visibilitychange", () => {
-  if (document.visibilityState === "visible" && Date.now() - lastShown > 3e5) load();
-  if (document.visibilityState === "hidden") lastShown = Date.now();
+  if (document.visibilityState === "hidden") hiddenAt = Date.now();
+  else if (Date.now() - hiddenAt > 3e5) load();
 });
+let rt; window.addEventListener("resize", () => { clearTimeout(rt); rt = setTimeout(() => current && render(current), 200); });
 
 if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(() => {});
 
-if (!readStore(SETTINGS_KEY)) openSettings();
-load();
+function start() {
+  const cached = readStore(CACHE_KEY);
+  if (cached && cached.repo === settings.repo && window.d3) render(cached);
+  if (!readStore(SETTINGS_KEY)) openSettings();
+  load();
+}
+if (window.d3) start();
+else window.addEventListener("load", () => setTimeout(start, 50));
 </script>
 </body>
 </html>
