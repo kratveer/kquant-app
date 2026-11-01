@@ -26,6 +26,15 @@ GitHub → Settings → Developer settings → Personal access tokens →
 This token can only read that one repo. It cannot trade, push code or see
 your other repos. It is saved only on your phone.
 
+### Optional: GitHub notifications bell
+
+GitHub's notifications API does not accept fine-grained tokens. To use the
+bell, create a **classic** personal access token with only the `notifications`
+scope, then add it in the app's Settings under “Notifications token”. This
+scope reads your GitHub notification inbox; the app does not mark notifications
+as read or change them. Keep your fine-grained repository token for the rest of
+the app.
+
 ## 2. Host it for free on GitHub Pages (5 min)
 
 The app files contain no data or secrets, so they can safely live in a

@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#EEF2F8">
+<meta name="theme-color" content="#E7E9ED">
 <meta name="mobile-web-app-capable" content="yes">
 <title>K-Quant Analytics</title>
 <link rel="manifest" href="manifest.json">
@@ -28,13 +28,13 @@
   --yellow: #F7C843;
   --up: #248A3D;   --up-bg: rgba(52,199,89,.14);
   --down: #D70015; --down-bg: rgba(255,59,48,.11);
-  --glass: rgba(255,255,255,.52);
+  --glass: rgba(255,255,255,.42);
   --grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.1' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .16 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-  --glass-hi: rgba(255,255,255,.82);
-  --edge: rgba(255,255,255,.75);
+  --glass-hi: rgba(255,255,255,.78);
+  --edge: rgba(255,255,255,.82);
   --line: rgba(29,29,31,.08);
-  --lift: 0 1px 1px rgba(20,40,90,.04), 0 6px 14px -6px rgba(20,40,90,.10), 0 28px 50px -22px rgba(20,40,90,.28);
-  --sheen: inset 0 1px 0 rgba(255,255,255,.95), inset 0 -1px 0 rgba(255,255,255,.25);
+  --lift: 0 1px 1px rgba(20,40,90,.035), 0 8px 20px -8px rgba(20,40,90,.13), 0 32px 64px -26px rgba(20,40,90,.26);
+  --sheen: inset 0 1px 0 rgba(255,255,255,.98), inset 0 -1px 0 rgba(255,255,255,.36);
   --r-lg: 28px; --r-md: 20px;
   --font: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Inter", "Helvetica Neue", Helvetica, Arial, sans-serif;
   color-scheme: light;
@@ -79,19 +79,23 @@ button { font: inherit; color: inherit; }
 
 /* Glass surface */
 .glass {
-  background: var(--grain), linear-gradient(160deg, rgba(255,255,255,.72), rgba(255,255,255,.42));
-  background-size: 120px 120px, auto;
-  -webkit-backdrop-filter: blur(30px) saturate(190%); backdrop-filter: blur(30px) saturate(190%);
+  background: radial-gradient(130% 100% at 0% 0%, rgba(255,255,255,.78), transparent 54%),
+    linear-gradient(145deg, rgba(255,255,255,.52), rgba(255,255,255,.22));
+  -webkit-backdrop-filter: blur(38px) saturate(185%); backdrop-filter: blur(38px) saturate(185%);
   border: 1px solid var(--edge);
   box-shadow: var(--sheen), var(--lift);
   border-radius: var(--r-lg);
   position: relative;
+  isolation: isolate;
+  transition: border-color .25s ease, box-shadow .25s ease, transform .25s ease;
 }
 .glass::after { /* specular light catch, top-left */
   content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none;
   background:
-    radial-gradient(120% 60% at 10% -10%, rgba(255,255,255,.75), rgba(255,255,255,0) 45%),
-    linear-gradient(180deg, rgba(255,255,255,0) 70%, rgba(180,205,255,.18));
+    radial-gradient(100% 75% at 2% 0%, rgba(255,255,255,.58), transparent 55%),
+    linear-gradient(112deg, rgba(255,255,255,.16), transparent 34%, transparent 70%, rgba(190,211,255,.18)),
+    linear-gradient(180deg, rgba(255,255,255,.06), transparent 48%, rgba(255,255,255,.16));
+  opacity: .85;
 }
 .glass::before { /* refracted rim: bright at top-left, tinted at bottom-right */
   content: ""; position: absolute; inset: 0; border-radius: inherit; padding: 1.2px; pointer-events: none; z-index: 2;
@@ -100,6 +104,10 @@ button { font: inherit; color: inherit; }
   mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
 }
 .glass > * { position: relative; z-index: 1; }
+@media (hover: hover) and (pointer: fine) {
+  .glass:hover { border-color: rgba(255,255,255,.98); box-shadow: var(--sheen), 0 12px 28px -10px rgba(20,40,90,.15), 0 38px 72px -28px rgba(20,40,90,.3); transform: translateY(-2px); }
+  button.glass:hover { transform: translateY(-1px); }
+}
 
 /* Header */
 .top { display: grid; grid-template-columns: 1fr auto; grid-template-areas: "title actions" "money money"; gap: 18px 24px; align-items: center; margin-bottom: 22px; }
@@ -108,6 +116,8 @@ button { font: inherit; color: inherit; }
 .title span { font-weight: 600; background: linear-gradient(90deg, #0071E3, #5E5CE6 60%, #2FB8FF); -webkit-background-clip: text; background-clip: text; color: transparent; }
 .updated { margin: 8px 0 0; font-size: 13px; color: var(--ink-3); }
 .top-actions { display: flex; gap: 10px; align-items: center; }
+.layout-edit { height: 46px; padding: 0 16px; border-radius: 999px; border: 1px solid rgba(255,255,255,.8); background: rgba(255,255,255,.58); cursor: pointer; font-weight: 650; color: var(--blue); box-shadow: var(--sheen), 0 8px 18px -12px rgba(20,40,90,.3); }
+.layout-edit[aria-pressed="true"] { background: var(--blue); color: white; }
 .pill-dark {
   display: inline-flex; align-items: center; gap: 8px; height: 46px; padding: 0 22px; border-radius: 999px; border: 0; cursor: pointer;
   background: linear-gradient(180deg, #1A8CFF, #0071E3); color: #fff; font-weight: 600; font-size: 14px;
@@ -118,6 +128,14 @@ button { font: inherit; color: inherit; }
 @keyframes spin { to { transform: rotate(360deg); } }
 .round { width: 46px; height: 46px; border-radius: 50%; display: grid; place-items: center; cursor: pointer; padding: 0; }
 .round svg { width: 19px; height: 19px; }
+.theme-switch { width: 54px; height: 34px; padding: 3px; border: 1px solid rgba(255,255,255,.78); border-radius: 999px; display: inline-flex; align-items: center; background: rgba(255,255,255,.62); box-shadow: inset 0 1px 0 rgba(255,255,255,.86), 0 6px 14px -10px rgba(38,72,130,.34); cursor: pointer; }
+.theme-track { position: relative; width: 100%; height: 100%; border-radius: inherit; display: flex; align-items: center; justify-content: space-between; padding: 0 5px; background: rgba(45,59,84,.13); }
+.theme-glyph { z-index: 1; width: 17px; color: var(--ink-2); font-size: 12px; line-height: 1; text-align: center; }
+.theme-knob { position: absolute; left: 2px; top: 2px; width: 22px; height: 22px; border-radius: 50%; background: linear-gradient(145deg,#fff,#E5EAF2); box-shadow: 0 2px 6px rgba(18,34,62,.25), inset 0 1px 0 #fff; transition: transform .28s cubic-bezier(.2,.8,.2,1), background .28s ease; }
+.theme-switch[aria-checked="true"] .theme-knob { transform: translateX(22px); background: linear-gradient(145deg,#59616F,#252B35); }
+.bell-btn { position: relative; }
+.bell-btn svg { width: 20px; height: 20px; }
+.bell-count { position: absolute; top: -3px; right: -3px; min-width: 19px; height: 19px; padding: 0 5px; border-radius: 999px; display: grid; place-items: center; background: #FF453A; color: #fff; border: 2px solid rgba(255,255,255,.92); font-size: 10px; line-height: 1; font-weight: 750; }
 
 .money { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); padding: 6px; border-radius: 24px; }
 .money > div { padding: 12px 16px; display: grid; gap: 2px; }
@@ -131,19 +149,29 @@ button { font: inherit; color: inherit; }
   .money { justify-self: end; width: min(560px, 100%); }
 }
 
-/* Layout grid */
-.grid { display: grid; gap: 22px; grid-template-columns: 1fr;
-  grid-template-areas: "hero" "trades" "list" "next" "health" "report"; }
-@media (min-width: 720px) {
-  .grid { grid-template-columns: 1fr 1fr;
-    grid-template-areas: "hero trades" "list list" "next health" "report report"; }
+/* Dashboard layout */
+.grid { display: grid; gap: 22px; grid-template-columns: minmax(0, 1fr); grid-auto-flow: row; align-items: start; align-content: start; }
+@media (min-width: 840px) {
+  .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 @media (min-width: 1100px) {
-  .grid { grid-template-columns: 1.1fr 1fr .95fr;
-    grid-template-areas: "hero trades health" "list list next" "report report next"; grid-template-rows: auto auto 1fr; align-items: start; }
+  .grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 }
-.a-hero { grid-area: hero; align-self: stretch; } .a-trades { grid-area: trades; align-self: stretch; } .a-health { grid-area: health; }
-.a-list { grid-area: list; } .a-next { grid-area: next; } .a-report { grid-area: report; }
+.grid > .widget { grid-column: span 1; grid-row: auto; position: relative; width: 100%; min-width: 0; }
+.grid > .widget[data-size="wide"] { grid-column: span 2; }
+.grid > .widget[data-size="full"] { grid-column: 1 / -1; }
+@media (max-width: 839px) {
+  .grid > .widget[data-size="wide"], .grid > .widget[data-size="full"] { grid-column: span 1; }
+}
+.a-hero, .a-trades { align-self: stretch; }
+.widget-tools { display: none; align-items: center; justify-content: flex-end; gap: 6px; margin: -8px 0 4px; }
+.editing .widget-tools { display: flex; }
+.widget-tools button, .widget-tools select { min-height: 34px; border: 1px solid rgba(29,29,31,.1); border-radius: 999px; background: rgba(255,255,255,.78); padding: 0 10px; color: var(--ink-2); font: inherit; font-size: 12px; font-weight: 650; cursor: pointer; }
+.widget-tools button { width: 34px; padding: 0; font-size: 16px; }
+.editing .widget { outline: 1px dashed rgba(0,113,227,.36); outline-offset: 4px; }
+.editing .widget[hidden] { display: none; }
+.layout-hint { display: none; margin: -10px 0 18px; color: var(--ink-2); font-size: 13px; }
+.layout-hint.visible { display: block; }
 
 .card { padding: 24px 26px; display: grid; gap: 14px; align-content: start; min-width: 0; }
 .card-h { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
@@ -157,7 +185,7 @@ button { font: inherit; color: inherit; }
   background: var(--grain), radial-gradient(120% 90% at 100% 0%, rgba(100,210,255,.85), transparent 55%),
     linear-gradient(140deg, #0A84FF 0%, #0071E3 40%, #5E5CE6 100%);
   background-size: 120px 120px, auto, auto;
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.5), inset 0 -1px 0 rgba(255,255,255,.12), 0 30px 50px -24px rgba(0,113,227,.65), 0 8px 18px -8px rgba(94,92,230,.45);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.68), inset 0 -1px 0 rgba(255,255,255,.18), 0 30px 56px -24px rgba(0,113,227,.58), 0 8px 20px -8px rgba(94,92,230,.42);
   display: grid; gap: 6px; min-height: 300px; align-content: start;
 }
 .hero::before { /* liquid sheen */
@@ -174,6 +202,10 @@ button { font: inherit; color: inherit; }
 .hero > * { position: relative; }
 .hero .lab { font-size: 15px; font-weight: 550; opacity: .92; }
 .hero .big { font-size: clamp(36px, 6vw, 50px); font-weight: 700; letter-spacing: -.035em; line-height: 1.05; }
+.hero-topline { display: flex; align-items: center; justify-content: space-between; gap: 8px; min-width: 0; }
+.curve-range { display: inline-flex; gap: 2px; padding: 3px; border-radius: 999px; background: rgba(255,255,255,.17); border: 1px solid rgba(255,255,255,.22); }
+.curve-range button { min-width: 30px; height: 24px; padding: 0 7px; border: 0; border-radius: 999px; background: transparent; color: rgba(255,255,255,.82); font: inherit; font-size: 10px; line-height: 1; font-weight: 700; cursor: pointer; transition: background .2s ease, color .2s ease; }
+.curve-range button[aria-pressed="true"] { color: #2158B8; background: rgba(255,255,255,.94); box-shadow: 0 2px 5px rgba(21,46,96,.16); }
 .chip-glass {
   justify-self: start; font-size: 12.5px; font-weight: 650; padding: 5px 11px; border-radius: 999px;
   background: rgba(255,255,255,.22); border: 1px solid rgba(255,255,255,.4);
@@ -208,6 +240,8 @@ button { font: inherit; color: inherit; }
 .tile-num small { font-size: 11px; font-weight: 600; color: rgba(29,29,31,.55); letter-spacing: 0; }
 .tile-num.ok { background: #DDF4E4; color: #1C7A35; }
 .tile-num.bad { background: #FFE3E1; color: #C4000F; }
+.tile-num.check-num { min-width: 0; padding: 5px; text-align: center; overflow: hidden; }
+.tile-num.check-num .check-value { display: block; max-width: 100%; font-size: 14px; line-height: 1.08; overflow-wrap: anywhere; }
 .tile-body { display: grid; gap: 8px; min-width: 0; }
 .tile-body b { font-size: 15.5px; font-weight: 650; }
 .tile-body p { margin: 0; font-size: 12.5px; color: var(--ink-3); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -252,6 +286,15 @@ button { font: inherit; color: inherit; }
 .pick:first-of-type { border-top: 0; }
 .pick-ic { width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; background: var(--tint); color: #0058B0; font-weight: 700; font-size: 14px; }
 .pick-ic.first { background: linear-gradient(140deg, #0A84FF, #5E5CE6); color: #fff; box-shadow: 0 8px 16px -8px rgba(0,113,227,.7); }
+.pick { border-radius: 12px; transition: background-color .28s ease, transform .32s cubic-bezier(.2,.8,.2,1), padding .28s ease; }
+.pick-main { display: grid; gap: 4px; min-width: 0; }
+.strength-meter { width: min(100%, 190px); height: 6px; border-radius: 999px; overflow: hidden; background: rgba(23,105,232,.11); box-shadow: inset 0 1px 1px rgba(29,45,77,.08); }
+.strength-meter > span { display: block; width: var(--fill, 0%); height: 100%; border-radius: inherit; background: linear-gradient(90deg, #3289FF, #6459E8); transform-origin: left center; animation: strength-fill .75s cubic-bezier(.2,.8,.2,1) both; }
+.strength-meter.negative { background: rgba(215,0,21,.09); }
+.strength-meter.negative > span { background: linear-gradient(90deg, #FF9F9A, #D70015); }
+@keyframes strength-fill { from { width: 0; opacity: .45; } to { width: var(--fill, 0%); opacity: 1; } }
+.a-next .bars { display: none; }
+@media (hover: hover) and (pointer: fine) { .pick:hover { transform: translateY(-.5px); background: rgba(255,255,255,.4); padding-left: 6px; padding-right: 6px; } }
 .pick b { font-weight: 650; } .pick p { margin: 0; font-size: 12.5px; color: var(--ink-3); }
 .pick .lim { font-weight: 700; text-align: right; } .pick .lim small { display: block; font-weight: 500; color: var(--ink-3); font-size: 11.5px; }
 
@@ -287,9 +330,45 @@ input { font: inherit; font-weight: 450; padding: 12px 14px; border-radius: 14px
 .sheet-actions { display: flex; gap: 8px; justify-content: flex-end; flex-wrap: wrap; }
 .btn { height: 44px; padding: 0 18px; border-radius: 999px; border: 1px solid rgba(21,22,28,.12); background: rgba(255,255,255,.7); cursor: pointer; font-weight: 600; }
 .btn.danger { color: var(--down); margin-right: auto; }
+.notifications-sheet { width: min(620px, calc(100% - 24px)); max-height: min(82vh, 760px); overflow: hidden; }
+.notification-list { display: grid; gap: 8px; overflow-y: auto; max-height: 56vh; padding: 2px 3px 4px 0; }
+.notification-item { display: grid; grid-template-columns: 10px minmax(0,1fr) auto; gap: 10px; align-items: start; padding: 12px; border-radius: 16px; background: rgba(255,255,255,.56); border: 1px solid rgba(255,255,255,.55); color: inherit; text-decoration: none; }
+.notification-item:hover { background: rgba(255,255,255,.82); }
+.notification-dot { width: 8px; height: 8px; margin-top: 6px; border-radius: 50%; background: transparent; }
+.notification-item.unread .notification-dot { background: var(--blue); box-shadow: 0 0 0 3px rgba(0,113,227,.1); }
+.notification-copy { min-width: 0; display: grid; gap: 3px; }
+.notification-copy b { font-size: 14px; line-height: 1.3; }
+.notification-copy span, .notification-time { font-size: 12px; color: var(--ink-3); }
+.notification-time { white-space: nowrap; }
+.notification-empty { margin: 8px 0; color: var(--ink-2); font-size: 14px; }
+.notification-filters { display: flex; align-items: center; gap: 8px; }
+.notification-filters button { border: 0; border-radius: 999px; min-height: 36px; padding: 0 13px; background: rgba(29,29,31,.06); color: var(--ink-2); font: inherit; font-size: 13px; font-weight: 650; cursor: pointer; }
+.notification-filters button[aria-pressed="true"] { color: #fff; background: var(--blue); }
+.notification-filters input { margin-left: auto; max-width: 220px; min-height: 36px; padding: 7px 12px; font-size: 13px; }
 
 @media (max-width: 560px) {
-  .card { padding: 20px; } .hero { padding: 22px; min-height: 0; }
+  .wrap { padding: 16px 14px 28px; }
+  .top { grid-template-columns: minmax(0, 1fr); grid-template-areas: "title" "actions" "money"; gap: 12px; margin-bottom: 16px; }
+  .top-actions { justify-content: flex-end; gap: 8px; }
+  .layout-edit { height: 42px; padding: 0 14px; }
+  .round, .pill-dark { width: 42px; height: 42px; }
+  .grid { gap: 16px; }
+  .card { padding: 18px; } .hero { padding: 22px; min-height: 0; }
+  .widget[data-size="wide"], .widget[data-size="full"] { grid-column: span 1; }
+  .widget-tools { margin: -6px 0 2px; }
+  .widget-tools button, .widget-tools select { min-height: 38px; }
+  .widget-tools button { width: 38px; }
+  .tile { gap: 12px; padding: 12px; }
+  .tile-num { width: 68px; height: 68px; border-radius: 18px; font-size: 21px; }
+  .tile-body b { font-size: 14px; }
+  .tile-body p { font-size: 12px; }
+  .bars { height: 200px; }
+  .pick { grid-template-columns: 38px minmax(0, 1fr) auto; gap: 9px; }
+  .pick-ic { width: 38px; height: 38px; }
+  .row { grid-template-columns: 40px minmax(0, 1fr) auto; gap: 10px; padding: 10px; }
+  .av { width: 40px; height: 40px; border-radius: 12px; }
+  .r-meta { font-size: 11.5px; }
+  .r-val { font-size: 13px; }
   .money { grid-template-columns: 1fr 1fr; }
   .money > div:first-child { grid-column: 1 / -1; border-bottom: 1px solid var(--line); }
   .money > div:nth-child(2) { border-left: 0; }
@@ -302,6 +381,202 @@ input { font: inherit; font-weight: 450; padding: 12px 14px; border-radius: 14px
   .reveal { animation: rise .7s cubic-bezier(.2,.8,.2,1) both; }
   @keyframes rise { from { opacity: 0; transform: translateY(14px) scale(.985); } }
 }
+/* Calm content surfaces; reserve the strongest glass for controls. */
+:root { --bg: #E7E9ED; --ink: #172033; --ink-2: #637087; --ink-3: #7E899B; --blue: #1769E8; --line: rgba(41,59,88,.09); --r-lg: 26px; }
+.aura { background: radial-gradient(80% 60% at 0% 0%, #F5F6F7 0%, transparent 68%), radial-gradient(65% 55% at 100% 15%, #E1E3E7 0%, transparent 66%), radial-gradient(75% 65% at 50% 100%, #D9DDE2 0%, transparent 68%), #E7E9ED; }
+.aura i { opacity: .1; filter: blur(100px); }
+.aura i:nth-child(1) { background: #C9CFD6; opacity: .14; }
+.aura i:nth-child(2) { background: #D1D3D8; opacity: .12; }
+.aura i:nth-child(3) { background: #C8CFD5; opacity: .11; }
+.glass { background: linear-gradient(145deg, rgba(255,255,255,.78), rgba(255,255,255,.59)); -webkit-backdrop-filter: blur(26px) saturate(155%); backdrop-filter: blur(26px) saturate(155%); border-color: rgba(255,255,255,.9); box-shadow: inset 0 1px 0 rgba(255,255,255,.96), 0 8px 22px -12px rgba(32,54,90,.18), 0 24px 44px -30px rgba(32,54,90,.24); }
+.glass::after { background: radial-gradient(100% 65% at 0% 0%, rgba(255,255,255,.62), transparent 56%), linear-gradient(160deg, rgba(255,255,255,.10), transparent 56%); opacity: .8; }
+.card.glass, .tile.glass, .money.glass { background: linear-gradient(150deg, rgba(255,255,255,.84), rgba(248,251,255,.67)); -webkit-backdrop-filter: blur(22px) saturate(145%); backdrop-filter: blur(22px) saturate(145%); }
+.round.glass, .layout-edit { background: linear-gradient(145deg, rgba(255,255,255,.92), rgba(236,244,255,.62)); border-color: rgba(255,255,255,.98); box-shadow: inset 0 1px 0 #fff, 0 8px 22px -12px rgba(38,72,130,.34); }
+.pill-dark { background: linear-gradient(145deg, #3289FF, #125DDB 72%, #485DEB); box-shadow: 0 12px 26px -14px rgba(23,105,232,.8), inset 0 1px 0 rgba(255,255,255,.55); }
+.hero { background: radial-gradient(110% 100% at 100% 0%, rgba(95,211,255,.88), transparent 58%), linear-gradient(138deg, #318DFF 0%, #1769E8 47%, #6459E8 100%); }
+.card { padding: 22px 24px; }
+.card-h h2 { font-size: 18px; }
+.tile { background: rgba(255,255,255,.74); border: 1px solid rgba(255,255,255,.95); box-shadow: inset 0 1px 0 #fff, 0 6px 16px -12px rgba(32,54,90,.2); }
+.card.glass, .tile.glass, .money.glass { background: linear-gradient(145deg, rgba(255,255,255,.50), rgba(235,244,255,.30)); -webkit-backdrop-filter: blur(28px) saturate(175%); backdrop-filter: blur(28px) saturate(175%); border-color: rgba(255,255,255,.64); }
+.card.glass::after, .tile.glass::after, .money.glass::after { opacity: .42; }
+.card.glass, .tile.glass, .money.glass { border: 1px solid transparent; box-shadow: 0 12px 26px -18px rgba(38,58,92,.34), 0 30px 54px -38px rgba(34,52,84,.32); }
+.card.glass::before, .tile.glass::before, .money.glass::before, .hero::after { display: none; }
+.card.glass::after, .tile.glass::after, .money.glass::after { opacity: .3; }
+.hero { border: 0; box-shadow: 0 16px 30px -20px rgba(45,57,87,.34), 0 34px 56px -38px rgba(45,57,87,.4); }
+.row:nth-child(odd) { background: rgba(244,248,255,.9); box-shadow: inset 0 1px 0 rgba(255,255,255,.95); }
+.notification-filters { flex-wrap: wrap; }
+@media (max-width: 839px) {
+  .top { grid-template-columns: minmax(0,1fr); grid-template-areas: "title" "actions" "money"; gap: 14px; }
+  .top-actions { justify-content: flex-end; }
+  .grid > .widget[data-size="wide"], .grid > .widget[data-size="full"] { grid-column: span 1; }
+}
+@media (max-width: 560px) {
+  .title { font-size: 30px; }
+  .card { padding: 18px; }
+  .notification-filters input { flex: 1 1 100%; max-width: none; }
+}
+.wrap { padding-top: 18px; padding-bottom: 30px; }
+.top { gap: 12px 18px; margin-bottom: 16px; }
+.title { font-size: clamp(30px, 4vw, 42px); letter-spacing: -.04em; }
+.updated { margin-top: 5px; font-size: 12px; }
+.top-actions { gap: 8px; }
+.top-actions .pill-dark, .top-actions .round { width: 40px; height: 40px; padding: 0; display: grid; place-items: center; }
+.top-actions .pill-dark svg, .top-actions .round svg { width: 17px; height: 17px; }
+.top-actions .layout-edit { border-radius: 50%; }
+.layout-edit[aria-pressed="true"] { background: linear-gradient(145deg, #3289FF, #125DDB); color: #fff; }
+.money { padding: 4px; }
+.money > div { padding: 9px 12px; gap: 1px; }
+.m-val { font-size: clamp(17px, 2vw, 21px); }
+.grid { gap: 16px; }
+.card { padding: 19px 20px; gap: 11px; }
+.card-h h2 { font-size: 17px; }
+.hero { min-height: 270px; padding: 22px 23px; }
+.hero .big { font-size: clamp(34px, 5.5vw, 46px); }
+.spark { height: 78px; margin-top: 5px; }
+.hero-stats { margin-top: 2px; }
+.hero-stats b { font-size: 18px; }
+.ring { width: 148px; height: 148px; }
+.legend { gap: 10px; }
+.tile { gap: 12px; padding: 11px; border-radius: 20px; }
+.tile + .tile { margin-top: 10px; }
+.tile-num { width: 70px; height: 66px; border-radius: 17px; font-size: 21px; }
+.tile-body { gap: 6px; }
+.tile-body b { font-size: 14px; }
+.tile-body p { font-size: 12px; }
+.row { padding: 9px 11px; gap: 11px; }
+.av { width: 42px; height: 42px; border-radius: 13px; }
+.bars { height: 200px; }
+.pick { padding: 8px 0; gap: 10px; }
+.widget-tools button, .widget-tools select { min-height: 32px; }
+.widget-tools button { width: 32px; }
+/* Denser desktop dashboard: keep every first-row panel visible and reduce card height. */
+.grid { grid-auto-flow: row dense; }
+.title { font-size: clamp(28px, 3.3vw, 36px); }
+.wrap { max-width: 1180px; padding-top: 14px; padding-bottom: 24px; }
+.top { gap: 10px 14px; margin-bottom: 12px; }
+.top-actions .pill-dark, .top-actions .round { width: 34px; height: 34px; }
+.top-actions .pill-dark svg, .top-actions .round svg { width: 15px; height: 15px; }
+.money > div { padding: 7px 10px; }
+.m-label { font-size: 11px; }
+.m-val { font-size: clamp(16px, 1.6vw, 19px); }
+.m-sub { font-size: 11px; }
+.grid { gap: 12px; }
+.grid > .widget[data-widget="health"] { display: grid; grid-column: span 1; grid-row: auto; align-content: start; gap: 9px; min-width: 0; }
+.a-health .tile { margin: 0; }
+.a-health .tile-num { width: 60px; height: 58px; border-radius: 15px; font-size: 19px; }
+.a-health .tile-num.check-num .check-value { font-size: 12px; }
+.a-health .tile-body { gap: 5px; }
+.a-health .bar { height: 7px; }
+.a-health .problems { margin-top: 0; gap: 5px; }
+.a-health .problems a { padding: 7px 9px; font-size: 11.5px; }
+.card { padding: 16px 18px; gap: 9px; }
+.card-h h2 { font-size: 16px; }
+.hero { min-height: 228px; padding: 18px 20px; }
+.hero .lab { font-size: 13px; }
+.hero .big { font-size: clamp(30px, 4vw, 40px); }
+.chip-glass { font-size: 11px; padding: 4px 9px; }
+.spark { height: 58px; margin-top: 2px; }
+.hero-stats span { font-size: 11px; }
+.hero-stats b { font-size: 16px; }
+.ring { width: 122px; height: 122px; }
+.legend { gap: 8px; }
+.legend b { font-size: 17px; }
+.big-ink { font-size: 29px; }
+.tile { padding: 9px; }
+.tile-num { width: 60px; height: 58px; }
+.row { padding: 7px 9px; gap: 9px; }
+.av { width: 38px; height: 38px; border-radius: 12px; }
+.r-title { font-size: 14px; }
+.r-meta { font-size: 11.5px; }
+.r-val { font-size: 13px; }
+.chg { font-size: 11px; padding: 2px 7px; }
+.bars { height: 168px; }
+.bars svg { height: 100%; }
+.pick { padding: 6px 0; gap: 8px; }
+.pick-ic { width: 36px; height: 36px; font-size: 12px; }
+@media (max-width: 839px) {
+  .title { font-size: clamp(28px, 5vw, 34px); }
+  .grid { gap: 14px; }
+  .hero { min-height: 0; }
+  .bars { height: 190px; }
+}
+@media (max-width: 560px) {
+  .title { font-size: 29px; }
+  .hero { min-height: 0; padding: 20px; }
+  .card { padding: 17px; }
+  .top-actions .pill-dark, .top-actions .round { width: 38px; height: 38px; }
+  .money > div { padding: 8px 10px; }
+  .tile-num { width: 64px; height: 62px; }
+  .ring { width: 132px; height: 132px; }
+}
+@media (min-width: 561px) and (max-width: 839px) {
+  .top { grid-template-columns: minmax(0,1fr) auto; grid-template-areas: "title actions" "money money"; align-items: center; }
+  .top-actions { justify-self: end; }
+}
+@media (max-width: 560px) {
+  .top { grid-template-columns: minmax(0,1fr); grid-template-areas: "actions" "title" "money"; gap: 10px; }
+  .top-actions { justify-self: center; width: max-content; max-width: 100%; padding: 4px 9px; border: 1px solid rgba(255,255,255,.82); border-radius: 999px; background: rgba(255,255,255,.46); -webkit-backdrop-filter: blur(20px) saturate(160%); backdrop-filter: blur(20px) saturate(160%); box-shadow: inset 0 1px 0 rgba(255,255,255,.9), 0 8px 18px -14px rgba(32,54,90,.32); }
+  .title { text-align: left; }
+}
+@media (hover: hover) and (pointer: fine) {
+  .glass { transition: transform .3s cubic-bezier(.2,.8,.2,1), box-shadow .3s ease, border-color .3s ease; }
+  .glass:hover { transform: translateY(-.5px) scale(1.002); border-color: rgba(255,255,255,.96); box-shadow: inset 0 1px 0 rgba(255,255,255,.98), 0 9px 20px -14px rgba(32,54,90,.22), 0 22px 44px -34px rgba(32,54,90,.22); }
+}
+@media (hover: hover) and (pointer: fine) {
+  .grid .glass, .grid .pick { transition: none; }
+  .grid .glass:hover { transform: none; border-color: transparent; }
+  .grid > .widget.card.glass:hover, .grid .tile.glass:hover, .money.glass:hover { box-shadow: 0 12px 26px -18px rgba(38,58,92,.34), 0 30px 54px -38px rgba(34,52,84,.32); }
+  .grid .pick:hover { transform: none; background: transparent; padding-left: 0; padding-right: 0; }
+  .money.glass { transition: none; }
+  .money.glass:hover { transform: none; border-color: transparent; }
+}
+@media (prefers-reduced-transparency: reduce) {
+  .glass, .card.glass, .tile.glass, .money.glass, dialog { -webkit-backdrop-filter: none; backdrop-filter: none; background: rgba(248,250,255,.98); }
+}
+@media (max-width: 560px) {
+  .hero-topline { align-items: flex-start; flex-direction: column; }
+  .curve-range { align-self: flex-end; }
+}
+:root[data-theme="dark"] { color-scheme: dark; --bg:#181B21; --ink:#F0F3F8; --ink-2:#B3BDCB; --ink-3:#929EAE; --blue:#76AFFF; --line:rgba(226,235,250,.12); --tint:#29374A; --up:#55D393; --up-bg:rgba(52,199,123,.18); --down:#FF7474; --down-bg:rgba(255,75,75,.17); --edge:rgba(215,227,245,.16); --glass:rgba(35,42,53,.62); }
+:root[data-theme="dark"] body { background:var(--bg); color:var(--ink); }
+:root[data-theme="dark"] .aura { background:radial-gradient(80% 60% at 0% 0%,#272D37 0%,transparent 68%),radial-gradient(65% 55% at 100% 15%,#252934 0%,transparent 66%),radial-gradient(75% 65% at 50% 100%,#202B35 0%,transparent 68%),#181B21; }
+:root[data-theme="dark"] .aura i { opacity:.08; }
+:root[data-theme="dark"] .aura::after { opacity:.12; }
+:root[data-theme="dark"] .glass { background:linear-gradient(145deg,rgba(48,57,70,.74),rgba(31,38,49,.64)); border-color:transparent; box-shadow:0 12px 26px -18px rgba(0,0,0,.54),0 30px 54px -38px rgba(0,0,0,.68); }
+:root[data-theme="dark"] .card.glass, :root[data-theme="dark"] .tile.glass, :root[data-theme="dark"] .money.glass { background:linear-gradient(145deg,rgba(46,54,66,.72),rgba(31,38,49,.62)); -webkit-backdrop-filter:blur(28px) saturate(145%); backdrop-filter:blur(28px) saturate(145%); }
+:root[data-theme="dark"] .glass::after { opacity:.16; }
+:root[data-theme="dark"] .round.glass, :root[data-theme="dark"] .layout-edit { background:linear-gradient(145deg,rgba(64,75,92,.88),rgba(40,48,62,.9)); color:var(--ink); border-color:transparent; box-shadow:0 5px 14px -9px rgba(0,0,0,.7),inset 0 1px 0 rgba(255,255,255,.035); }
+:root[data-theme="dark"] .theme-switch { background:rgba(39,47,59,.92); border-color:transparent; box-shadow:0 5px 14px -9px rgba(0,0,0,.72); }
+:root[data-theme="dark"] .theme-track { background:rgba(5,8,14,.48); }
+:root[data-theme="dark"] .theme-glyph { color:#E8C77A; }
+:root[data-theme="dark"] .top-actions { background:rgba(35,42,53,.68); border-color:rgba(226,235,250,.12); }
+:root[data-theme="dark"] .tile { background:rgba(46,54,66,.68); border-color:transparent; }
+:root[data-theme="dark"] .tile-num { background:#26364A; color:#A8CCFF; box-shadow:inset 0 1px 0 rgba(255,255,255,.08); }
+:root[data-theme="dark"] .tile-num.ok { background:#1C3B32; color:#75D9A3; }
+:root[data-theme="dark"] .tile-num.bad { background:#472B32; color:#FF9B9B; }
+:root[data-theme="dark"] .row:nth-child(odd) { background:rgba(41,49,61,.76); box-shadow:inset 0 1px 0 rgba(255,255,255,.04); }
+:root[data-theme="dark"] .tab .count { background:rgba(225,235,250,.12); color:var(--ink-2); }
+:root[data-theme="dark"] .status { background:rgba(225,235,250,.12); color:var(--ink-2); }
+:root[data-theme="dark"] .status.warn { background:rgba(247,200,67,.16); color:#F7D36E; }
+:root[data-theme="dark"] .bar { background:rgba(231,237,247,.16); box-shadow:inset 0 1px 2px rgba(0,0,0,.22); }
+:root[data-theme="dark"] .problems a { background:rgba(44,52,65,.8); color:var(--ink); }
+:root[data-theme="dark"] .empty { border-color:rgba(226,235,250,.2); color:var(--ink-2); }
+:root[data-theme="dark"] .pick-ic { background:#293B52; color:#C1DAFF; }
+:root[data-theme="dark"] .pick:hover { background:rgba(255,255,255,.04); }
+:root[data-theme="dark"] .msg { color:var(--ink-2); }
+:root[data-theme="dark"] .msg.bad { background:rgba(108,42,48,.72); color:#FFE8E8; }
+:root[data-theme="dark"] details.card, :root[data-theme="dark"] .prose pre { background:rgba(38,46,58,.82); }
+:root[data-theme="dark"] dialog { color:var(--ink); background:rgba(30,36,47,.96); border:1px solid rgba(226,235,250,.12); }
+:root[data-theme="dark"] dialog::backdrop { background:rgba(5,8,14,.58); }
+:root[data-theme="dark"] input { color:var(--ink); background:rgba(19,24,32,.82); border-color:rgba(226,235,250,.16); }
+:root[data-theme="dark"] .btn { color:var(--ink); background:rgba(56,66,82,.82); border-color:rgba(226,235,250,.14); }
+:root[data-theme="dark"] .notification-item { background:rgba(49,58,72,.72); border-color:rgba(226,235,250,.08); }
+:root[data-theme="dark"] .notification-item:hover { background:rgba(64,75,91,.78); }
+:root[data-theme="dark"] .notification-filters button { background:rgba(226,235,250,.1); color:var(--ink-2); }
+:root[data-theme="dark"] .notification-filters button[aria-pressed="true"] { background:var(--blue); color:#111827; }
+:root[data-theme="dark"] .curve-range button[aria-pressed="true"] { background:rgba(255,255,255,.92); color:#214675; }
+:root[data-theme="dark"] #ring text:first-of-type { fill:var(--ink); }
+:root[data-theme="dark"] #ring text:last-of-type { fill:var(--ink-3); }
 </style>
 </head>
 <body>
@@ -310,7 +585,7 @@ input { font: inherit; font-weight: 450; padding: 12px 14px; border-radius: 14px
 <div class="wrap">
   <header class="top">
     <div>
-      <h1 class="title">K-Quant <span>Analytics</span></h1>
+      <h1 class="title">Hello, Kratveer</h1>
       <p class="updated" id="updated">Loading…</p>
     </div>
     <div class="money glass" id="money" aria-label="Demo account">
@@ -319,19 +594,31 @@ input { font: inherit; font-weight: 450; padding: 12px 14px; border-radius: 14px
       <div><span class="m-label">Profit / loss</span><span class="m-val" id="m-pnl">—</span><span class="m-sub" id="m-pnl-sub">Realized + open</span></div>
     </div>
     <div class="top-actions">
-      <button class="pill-dark" id="refresh" aria-label="Refresh"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"><path d="M20 11a8 8 0 1 0-2.3 5.7"/><path d="M20 4v7h-7"/></svg><span class="txt">Refresh</span></button>
+      <button class="pill-dark" id="refresh" aria-label="Refresh dashboard" title="Refresh"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"><path d="M20 11a8 8 0 1 0-2.3 5.7"/><path d="M20 4v7h-7"/></svg></button>
+      <button class="round glass layout-edit" id="edit-layout" aria-label="Edit layout" title="Edit layout" aria-pressed="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L8 18l-4 1 1-4Z"/></svg></button>
+      <button class="theme-switch" id="theme-toggle" type="button" role="switch" aria-label="Dark appearance" aria-checked="false" title="Dark appearance"><span class="theme-track"><span class="theme-glyph" id="theme-glyph">☾</span><span class="theme-knob"></span></span></button>
+      <button class="round glass bell-btn" id="open-notifications" aria-label="GitHub notifications" title="GitHub notifications"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"/><path d="M10 21h4"/></svg><span class="bell-count" id="notification-count" hidden>0</span></button>
       <button class="round glass" id="open-settings" aria-label="Settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg></button>
     </div>
   </header>
 
   <p class="msg glass" id="message" hidden></p>
+  <p class="layout-hint" id="layout-hint">Adjust each card’s width and use the arrows to reorder it. Your layout is saved on this device.</p>
 
   <main class="grid">
     <!-- Hero: shadow account -->
-    <section class="hero a-hero reveal" aria-label="Shadow account">
+    <section class="hero a-hero reveal widget" data-widget="hero" data-size="standard" aria-label="Shadow account">
       <span class="lab">Strategy B shadow account</span>
       <span class="big" id="h-equity">—</span>
-      <span class="chip-glass" id="h-ret">— since start</span>
+      <div class="hero-topline">
+        <span class="chip-glass" id="h-ret">— since start</span>
+        <div class="curve-range" role="group" aria-label="Account history range">
+          <button type="button" data-curve-range="7" aria-pressed="false">1W</button>
+          <button type="button" data-curve-range="30" aria-pressed="true">1M</button>
+          <button type="button" data-curve-range="90" aria-pressed="false">3M</button>
+          <button type="button" data-curve-range="all" aria-pressed="false">ALL</button>
+        </div>
+      </div>
       <div class="spark" id="spark"></div>
       <div class="hero-stats">
         <div><span>Last session</span><b id="h-day">—</b></div>
@@ -341,7 +628,7 @@ input { font: inherit; font-weight: 450; padding: 12px 14px; border-radius: 14px
     </section>
 
     <!-- Closed trades ring -->
-    <section class="card glass a-trades reveal" aria-labelledby="t-h">
+    <section class="card glass a-trades reveal widget" data-widget="trades" data-size="standard" aria-labelledby="t-h">
       <div class="card-h"><h2 id="t-h">Closed trades</h2><small id="t-count">—</small></div>
       <div class="ring-wrap">
         <div class="legend">
@@ -355,7 +642,7 @@ input { font: inherit; font-weight: 450; padding: 12px 14px; border-radius: 14px
     </section>
 
     <!-- Health tiles -->
-    <section class="a-health" aria-label="Bot health">
+    <section class="a-health widget" data-widget="health" data-size="standard" aria-label="Bot health">
       <div class="tile glass reveal">
         <div class="tile-num" id="p-num">—<small>problems</small></div>
         <div class="tile-body">
@@ -373,7 +660,7 @@ input { font: inherit; font-weight: 450; padding: 12px 14px; border-radius: 14px
         </div>
       </div>
       <div class="tile glass reveal">
-        <div class="tile-num" id="d-num" style="font-size:18px">—<small>demo check</small></div>
+        <div class="tile-num check-num" id="d-num"><span class="check-value" id="d-status">—</span><small>demo check</small></div>
         <div class="tile-body">
           <b>Demo account check</b>
           <p id="d-latest">Latest evening check</p>
@@ -383,7 +670,7 @@ input { font: inherit; font-weight: 450; padding: 12px 14px; border-radius: 14px
     </section>
 
     <!-- Positions & holdings -->
-    <section class="card glass a-list reveal" aria-label="Positions and holdings">
+    <section class="card glass a-list reveal widget" data-widget="positions" data-size="wide" aria-label="Positions and holdings">
       <div class="tabs" role="tablist">
         <button class="tab" role="tab" id="tab-pos" aria-selected="true">Active positions<span class="count" id="c-pos">0</span></button>
         <button class="tab" role="tab" id="tab-hold" aria-selected="false">Holdings<span class="count" id="c-hold">0</span></button>
@@ -393,14 +680,13 @@ input { font: inherit; font-weight: 450; padding: 12px 14px; border-radius: 14px
     </section>
 
     <!-- Next buys -->
-    <section class="card glass a-next reveal" aria-labelledby="n-h">
+    <section class="card glass a-next reveal widget" data-widget="buys" data-size="standard" aria-labelledby="n-h">
       <div class="card-h"><h2 id="n-h">Suggested next buys</h2><small>Next session</small></div>
-      <div class="bars" id="bars"></div>
       <div id="picks"></div>
       <p class="note">Strength vs SPY over 3 months. The top 3 are bought at the open, only at or below their limit.</p>
     </section>
 
-    <details class="card glass a-report" id="report-box" hidden>
+    <details class="card glass a-report widget" data-widget="report" data-size="wide" id="report-box" hidden>
       <summary>Full daily report</summary>
       <div class="prose" id="report-text"></div>
     </details>
@@ -416,23 +702,108 @@ input { font: inherit; font-weight: 450; padding: 12px 14px; border-radius: 14px
     <label>Repository<input id="f-repo" placeholder="owner/repo" autocomplete="off" autocapitalize="off" spellcheck="false" required></label>
     <label>GitHub token<input id="f-token" type="password" placeholder="github_pat_…" autocomplete="off" spellcheck="false">
       <span class="hint">Fine-grained, read-only, for this one repo.</span></label>
+    <label>Notifications token (optional)<input id="f-notifications-token" type="password" placeholder="ghp_…" autocomplete="off" spellcheck="false">
+      <span class="hint">GitHub notification API requires a classic token with only the <b>notifications</b> scope. This lets the bell read your GitHub inbox; your existing repo token stays fine-grained. <a href="https://github.com/settings/tokens/new" target="_blank" rel="noopener">Create token</a></span></label>
     <label>Report issue title<input id="f-title" autocomplete="off">
       <span class="hint">The issue your workflow posts the daily report to.</span></label>
     <div class="sheet-actions">
-      <button type="button" class="btn danger" id="forget">Remove token</button>
+      <button type="button" class="btn danger" id="forget">Remove tokens</button>
       <button type="button" class="btn" id="cancel">Cancel</button>
       <button type="submit" class="pill-dark" style="height:44px">Save and load</button>
     </div>
   </form>
 </dialog>
 
+<dialog id="notifications-dialog" class="notifications-sheet">
+  <div class="sheet">
+    <div class="card-h"><h3>GitHub notifications</h3><button type="button" class="round glass" id="close-notifications" aria-label="Close notifications">×</button></div>
+    <p id="notifications-status">Loading notifications…</p>
+    <div class="notification-filters" role="group" aria-label="Filter notifications">
+      <button type="button" data-notification-filter="all" aria-pressed="true">All</button>
+      <button type="button" data-notification-filter="unread" aria-pressed="false">Unread</button>
+      <input id="notification-search" type="search" placeholder="Search inbox" aria-label="Search notifications">
+    </div>
+    <div class="notification-list" id="notification-list" aria-live="polite"></div>
+    <div class="sheet-actions"><button type="button" class="btn" id="refresh-notifications">Refresh</button><button type="button" class="btn" id="done-notifications">Done</button></div>
+  </div>
+</dialog>
+
 <script>
 /* ============ Settings & storage ============ */
-const DEFAULTS = { repo: "kratveer/kquant", token: "", title: "K-Quant daily report" };
+const DEFAULTS = { repo: "kratveer/kquant", token: "", notificationsToken: "", title: "K-Quant daily report" };
 const SETTINGS_KEY = "kq-settings", CACHE_KEY = "kq-cache-v2";
+const LAYOUT_KEY = "kq-dashboard-layout-v1";
 const $ = id => document.getElementById(id);
 const readStore = k => { try { return JSON.parse(localStorage.getItem(k) || "null"); } catch { return null; } };
 const writeStore = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} };
+$('theme-toggle').addEventListener('click', () => {
+  darkMode = !darkMode;
+  writeStore(THEME_KEY, darkMode ? 'dark' : 'light');
+  applyTheme();
+});
+document.querySelectorAll('[data-curve-range]').forEach(button => {
+  button.addEventListener('click', () => {
+    const value = button.dataset.curveRange;
+    historyRange = value === 'all' ? 'all' : Number(value);
+    writeStore(RANGE_KEY, historyRange);
+    if (current) drawCurve(current.report && current.report.data ? derive(current.report.data) : null);
+  });
+});
+const THEME_KEY = "kq-theme-v1", RANGE_KEY = "kq-history-range-v1";
+let darkMode = readStore(THEME_KEY) === "dark";
+let historyRange = readStore(RANGE_KEY) ?? 30;
+if (!([7, 30, 90, "all"].includes(historyRange))) historyRange = 30;
+function applyTheme() {
+  const name = darkMode ? "dark" : "light";
+  document.documentElement.dataset.theme = name;
+  $("theme-toggle").setAttribute("aria-checked", String(darkMode));
+  $("theme-toggle").title = darkMode ? "Switch to light appearance" : "Switch to dark appearance";
+  $("theme-glyph").textContent = darkMode ? "☀" : "☾";
+  document.querySelector('meta[name="theme-color"]').content = darkMode ? "#181B21" : "#E7E9ED";
+}
+applyTheme();
+/* ============ Dashboard layout ============ */
+const dashboard = document.querySelector(".grid");
+const widgetNodes = () => [...dashboard.querySelectorAll("[data-widget]")];
+function saveLayout() {
+  writeStore(LAYOUT_KEY, { order: widgetNodes().map(node => node.dataset.widget), sizes: Object.fromEntries(widgetNodes().map(node => [node.dataset.widget, node.dataset.size])) });
+}
+function moveWidget(node, direction) {
+  const nodes = widgetNodes(), index = nodes.indexOf(node), target = nodes[index + direction];
+  if (!target) return;
+  if (direction < 0) dashboard.insertBefore(node, target);
+  else dashboard.insertBefore(target, node);
+  saveLayout();
+}
+function setupLayout() {
+  const saved = readStore(LAYOUT_KEY) || {};
+  const byId = new Map(widgetNodes().map(node => [node.dataset.widget, node]));
+  (saved.order || []).forEach(id => { const node = byId.get(id); if (node) dashboard.append(node); });
+  for (const node of widgetNodes()) {
+    if (saved.sizes && ["standard", "wide", "full"].includes(saved.sizes[node.dataset.widget])) node.dataset.size = saved.sizes[node.dataset.widget];
+    const tools = document.createElement("div");
+    tools.className = "widget-tools";
+    const up = document.createElement("button"); up.type = "button"; up.textContent = "↑"; up.setAttribute("aria-label", "Move card up"); up.title = "Move up"; up.onclick = () => moveWidget(node, -1);
+    const down = document.createElement("button"); down.type = "button"; down.textContent = "↓"; down.setAttribute("aria-label", "Move card down"); down.title = "Move down"; down.onclick = () => moveWidget(node, 1);
+    const size = document.createElement("select"); size.setAttribute("aria-label", "Card width"); size.title = "Card width";
+    [["standard", "Small"], ["wide", "Medium"], ["full", "Large"]].forEach(([value, label]) => { const option = document.createElement("option"); option.value = value; option.textContent = label; size.append(option); });
+    size.value = node.dataset.size || "standard";
+    size.onchange = () => { node.dataset.size = size.value; saveLayout(); };
+    tools.append(up, down, size); node.prepend(tools);
+  }
+}
+setupLayout();
+$("edit-layout").addEventListener("click", event => {
+  const editing = event.currentTarget.getAttribute("aria-pressed") !== "true";
+  event.currentTarget.setAttribute("aria-pressed", String(editing));
+  event.currentTarget.setAttribute("aria-label", editing ? "Done editing layout" : "Edit layout");
+  event.currentTarget.title = editing ? "Done editing layout" : "Edit layout";
+  event.currentTarget.innerHTML = editing
+    ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 4 4L19 6"/></svg>'
+    : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L8 18l-4 1 1-4Z"/></svg>';
+  dashboard.classList.toggle("editing", editing);
+  $("layout-hint").classList.toggle("visible", editing);
+});
 let settings = Object.assign({}, DEFAULTS, readStore(SETTINGS_KEY) || {});
 let current = null, tab = "pos";
 
@@ -452,6 +823,74 @@ async function gh(path) {
     throw new GhError(`Can’t open ${settings.repo}. Add a token with access to it in Settings, or check the name.`, "access");
   throw new GhError(`GitHub answered with error ${res.status}.`, "other");
 }
+async function fetchNotifications() {
+  if (!settings.notificationsToken) throw new GhError("Add a classic GitHub token with the notifications scope in Settings to connect your inbox.", "notifications-token");
+  const headers = { Accept: "application/vnd.github+json", Authorization: "Bearer " + settings.notificationsToken, "X-GitHub-Api-Version": "2022-11-28" };
+  const all = [];
+  for (let page = 1; ; page++) {
+    let res;
+    try { res = await fetch(`https://api.github.com/notifications?all=true&per_page=50&page=${page}`, { headers, cache: "no-store" }); }
+    catch { throw new GhError("No connection to GitHub.", "offline"); }
+    if (res.status === 401) throw new GhError("GitHub rejected the notifications token. Check that it is a classic token with the notifications scope.", "notifications-auth");
+    if (res.status === 403) throw new GhError("GitHub denied access to notifications. Use a classic token with only the notifications scope.", "notifications-access");
+    if (!res.ok) throw new GhError(`GitHub answered with error ${res.status} while loading notifications.`, "other");
+    const batch = await res.json(); all.push(...batch);
+    if (batch.length < 50) break;
+    $("notifications-status").textContent = `Loading… ${all.length} notifications`;
+  }
+  return all;
+}
+function notificationHref(item) {
+  const subjectUrl = item.subject && item.subject.url || "";
+  if (subjectUrl.startsWith("https://api.github.com/repos/")) {
+    const html = subjectUrl.replace("https://api.github.com/repos/", "https://github.com/");
+    if (!html.includes("/issues/comments/")) return html;
+  }
+  return item.repository && item.repository.html_url || "https://github.com/notifications";
+}
+function paintNotifications(items) {
+  notificationItems = items;
+  const unread = items.filter(item => item.unread).length;
+  const badge = $("notification-count");
+  badge.hidden = unread === 0; badge.textContent = unread > 99 ? "99+" : String(unread);
+  const needle = $("notification-search").value.trim().toLowerCase();
+  const visible = items.filter(item => (notificationFilter !== "unread" || item.unread) && (!needle || `${item.subject && item.subject.title || ""} ${item.repository && item.repository.full_name || ""} ${item.reason || ""}`.toLowerCase().includes(needle)));
+  const list = $("notification-list"); list.replaceChildren();
+  if (!visible.length) { const empty = document.createElement("p"); empty.className = "notification-empty"; empty.textContent = items.length ? "No notifications match this filter." : "You’re all caught up. No GitHub notifications found."; list.append(empty); return; }
+  for (const item of visible) {
+    const link = document.createElement("a"); link.className = "notification-item" + (item.unread ? " unread" : ""); link.href = notificationHref(item); link.target = "_blank"; link.rel = "noopener noreferrer";
+    const dot = document.createElement("i"); dot.className = "notification-dot"; dot.setAttribute("aria-hidden", "true");
+    const copy = document.createElement("span"); copy.className = "notification-copy";
+    const title = document.createElement("b"); title.textContent = item.subject && item.subject.title || "GitHub notification";
+    const detail = document.createElement("span"); detail.textContent = `${item.repository && item.repository.full_name || "GitHub"} · ${item.subject && item.subject.type || "Update"} · ${(item.reason || "updated").replaceAll("_", " ")}`;
+    const time = document.createElement("time"); time.className = "notification-time"; time.dateTime = item.updated_at || ""; time.textContent = item.updated_at ? ago(item.updated_at) : "";
+    copy.append(title, detail); link.append(dot, copy, time); list.append(link);
+  }
+}
+let notificationItems = [], notificationFilter = "all";
+async function loadNotifications() {
+  $("notifications-status").textContent = "Loading notifications…";
+  $("notification-list").replaceChildren();
+  try {
+    const items = await fetchNotifications(); paintNotifications(items);
+    const unread = items.filter(item => item.unread).length;
+    $("notifications-status").textContent = `${items.length} notifications · ${unread} unread`;
+  } catch (e) {
+    $("notification-count").hidden = true;
+    $("notifications-status").textContent = e.message || "Couldn’t load notifications.";
+    if (e.kind === "notifications-token" || e.kind === "notifications-auth" || e.kind === "notifications-access") {
+      const settingsButton = document.createElement("button"); settingsButton.type = "button"; settingsButton.className = "btn"; settingsButton.textContent = "Open Settings";
+      settingsButton.onclick = () => { $("notifications-dialog").close(); openSettings(); };
+      $("notification-list").append(settingsButton);
+    }
+  }
+}
+document.querySelectorAll("[data-notification-filter]").forEach(button => button.addEventListener("click", () => {
+  notificationFilter = button.dataset.notificationFilter;
+  document.querySelectorAll("[data-notification-filter]").forEach(item => item.setAttribute("aria-pressed", String(item === button)));
+  paintNotifications(notificationItems);
+}));
+$("notification-search").addEventListener("input", () => paintNotifications(notificationItems));
 const repoPath = () => "/repos/" + settings.repo.split("/").map(encodeURIComponent).join("/");
 function parseBlock(body) {
   if (!body) return null;
@@ -589,6 +1028,27 @@ function spark(box, data) {
     .on("pointerleave", () => tip.style("display", "none"));
 }
 
+function drawCurve(v) {
+  const points = v && v.curve ? v.curve : [];
+  let visible = points;
+  if (historyRange !== "all" && points.length > 1) {
+    const latest = Date.parse(points[points.length - 1].date);
+    if (Number.isFinite(latest)) {
+      const cutoff = latest - Number(historyRange) * 864e5;
+      let first = points.findIndex(point => Date.parse(point.date) >= cutoff);
+      if (first < 0) first = points.length - 1;
+      if (first > 0) first--;
+      visible = points.slice(first);
+    }
+  }
+  spark($("spark"), visible);
+  const label = historyRange === "all" ? "All history" : `Last ${historyRange} days`;
+  $("spark").setAttribute("aria-label", `Account value chart, ${label}`);
+  document.querySelectorAll("[data-curve-range]").forEach(button => {
+    button.setAttribute("aria-pressed", String(String(historyRange) === button.dataset.curveRange));
+  });
+}
+
 function ring(svgEl, won, lost) {
   const svg = d3.select(svgEl); svg.selectAll("*").remove();
   const total = won + lost, R = 50, cx = 60, cy = 60;
@@ -607,31 +1067,6 @@ function ring(svgEl, won, lost) {
     .forEach(a => g.append("path").attr("d", arc(a)).attr("fill", a.data.c));
   g.append("text").attr("text-anchor", "middle").attr("dy", "-.1em").attr("font-size", 17).attr("font-weight", 700).attr("fill", "#1D1D1F").text(total);
   g.append("text").attr("text-anchor", "middle").attr("dy", "1.4em").attr("font-size", 8.5).attr("fill", "#9A9BA3").text("trades");
-}
-
-function planBars(box, plan) {
-  box.replaceChildren();
-  if (!plan.length) { box.append(el("div", { class: "empty" }, "The buy list appears after the next daily report.")); box.style.height = "auto"; return; }
-  box.style.height = "";
-  const data = plan.slice(0, 8);
-  const W = Math.max(220, box.clientWidth), H = 230;
-  const svg = d3.select(box).append("svg").attr("width", "100%").attr("viewBox", `0 0 ${W} ${H}`);
-  const defs = svg.append("defs");
-  const lg = defs.append("linearGradient").attr("id", "bg1").attr("x1", 0).attr("x2", 0).attr("y1", 0).attr("y2", 1);
-  lg.append("stop").attr("offset", 0).attr("stop-color", "#0A84FF"); lg.append("stop").attr("offset", 1).attr("stop-color", "#5E5CE6");
-  const x = d3.scaleBand(data.map((d, i) => i), [4, W - 4]).padding(.5);
-  const mx = d3.max(data, d => Math.abs(d.rank)) || 1;
-  const y = d3.scaleLinear([0, mx], [H - 34, 26]);
-  const bw = Math.min(26, x.bandwidth());
-  data.forEach((d, i) => {
-    const cx = x(i) + x.bandwidth() / 2, top = y(Math.abs(d.rank)), isTop = i < 3;
-    svg.append("rect").attr("x", cx - bw / 2).attr("y", 26).attr("width", bw).attr("height", H - 34 - 26).attr("rx", bw / 2).attr("fill", "rgba(0,113,227,.07)");
-    svg.append("rect").attr("x", cx - bw / 2).attr("y", top).attr("width", bw).attr("height", Math.max(bw, H - 34 - top)).attr("rx", bw / 2)
-      .attr("fill", isTop ? "url(#bg1)" : (d.rank >= 0 ? "#C7D6EC" : "#F6C2C0"));
-    if (i === 0) svg.append("text").attr("x", cx).attr("y", top + bw / 2 + 1).attr("dy", ".35em").attr("text-anchor", "middle").attr("font-size", 12).attr("fill", "#fff").text("★");
-    svg.append("text").attr("x", cx).attr("y", top - 8).attr("text-anchor", "middle").attr("font-size", 11).attr("font-weight", 700).attr("fill", isTop ? "#1D1D1F" : "#9A9BA3").text(pct(d.rank, 0));
-    svg.append("text").attr("x", cx).attr("y", H - 10).attr("text-anchor", "middle").attr("font-size", 11).attr("font-weight", 650).attr("fill", "#5E606B").text(String(d.ticker).slice(0, 5));
-  });
 }
 
 /* ============ Render ============ */
@@ -698,7 +1133,7 @@ function render(data) {
   // Hero
   setT("h-equity", r ? usd(r.equity) : null);
   setT("h-ret", v && fin(v.ret) ? `${pct(v.ret)} since ${r.started || "start"}` : "Waiting for the first report");
-  spark($("spark"), v ? v.curve : null);
+  drawCurve(v);
   const lastChg = v && v.daily.length ? v.daily[v.daily.length - 1].change : null;
   setT("h-day", lastChg != null ? pct(lastChg) : null);
   setT("h-open", r ? String(r.open_n ?? v.positions.length) : null);
@@ -724,9 +1159,12 @@ function render(data) {
   $("r-bar").style.width = recent.length ? (ok / recent.length * 100) + "%" : "0";
   setT("r-latest", data.runs[0] ? `Latest: ${data.runs[0].name}, ${ago(data.runs[0].at)}` : "No runs yet");
   const res = v ? v.acc.result : null;
-  $("d-num").firstChild.textContent = res || "—";
-  $("d-num").className = "tile-num" + (res === "OK" ? " ok" : (res ? " bad" : ""));
-  setT("d-latest", v && v.acc.checked ? `Checked ${v.acc.checked}` + (v.acc.critical ? " · needs attention" : "") : "Latest evening check");
+  const shortRes = res && res.length > 12 ? (res.toLowerCase().includes("skipped") ? "Skipped" : `${res.slice(0, 10)}…`) : (res || "—");
+  $("d-status").textContent = shortRes;
+  $("d-num").title = res || "No demo check status";
+  $("d-num").className = "tile-num check-num" + (res === "OK" ? " ok" : (res ? " bad" : ""));
+  const checkedText = v && v.acc.checked ? `Checked ${v.acc.checked}` + (v.acc.critical ? " · needs attention" : "") : "Latest evening check";
+  setT("d-latest", [res && res.length > 12 ? res : "", checkedText].filter(Boolean).join(" · "));
   const pl = $("problems"); pl.replaceChildren();
   for (const p of data.problems.slice(0, 5)) {
     const a = el("a", { href: p.url, target: "_blank", rel: "noopener" }, el("span", {}, p.title), el("span", {}, ago(p.at)));
@@ -736,12 +1174,18 @@ function render(data) {
   // List & next buys
   renderList(v);
   const plan = v ? v.plan : [];
-  planBars($("bars"), plan);
   const picks = $("picks"); picks.replaceChildren();
-  plan.slice(0, 3).forEach((p, i) => picks.append(el("div", { class: "pick" },
-    el("span", { class: "pick-ic" + (i === 0 ? " first" : "") }, String(i + 1)),
-    el("div", {}, el("b", {}, String(p.ticker)), el("p", {}, `Signal close ${px(p.close)} · strength ${pct(p.rank, 0)}`)),
-    el("div", { class: "lim" }, px(p.limit), el("small", {}, "max buy price")))));
+  plan.slice(0, 3).forEach((p, i) => {
+    const rank = Number(p.rank) || 0, fill = Math.min(100, Math.abs(rank) * 100);
+    const strength = pct(rank, 0);
+    const meter = el("div", { class: "strength-meter" + (rank < 0 ? " negative" : ""), role: "img", "aria-label": `Strength ${strength}` },
+      el("span", { style: `--fill:${fill}%` }));
+    picks.append(el("div", { class: "pick" },
+      el("span", { class: "pick-ic" + (i === 0 ? " first" : "") }, String(i + 1)),
+      el("div", { class: "pick-main" }, el("b", {}, String(p.ticker)), meter,
+        el("p", {}, `Signal close ${px(p.close)} · strength ${strength}`)),
+      el("div", { class: "lim" }, px(p.limit), el("small", {}, "max buy price"))));
+  });
 
   // Report
   const box = $("report-box"), txt = $("report-text");
@@ -774,16 +1218,19 @@ async function load() {
   } finally { loading = false; $("refresh").classList.remove("spin"); }
 }
 function openSettings() {
-  $("f-repo").value = settings.repo; $("f-token").value = settings.token; $("f-title").value = settings.title;
+  $("f-repo").value = settings.repo; $("f-token").value = settings.token; $("f-notifications-token").value = settings.notificationsToken || ""; $("f-title").value = settings.title;
   $("settings").showModal();
 }
+$("open-notifications").onclick = () => { $("notifications-dialog").showModal(); loadNotifications(); };
+$("close-notifications").onclick = $("done-notifications").onclick = () => $("notifications-dialog").close();
+$("refresh-notifications").onclick = loadNotifications;
 $("open-settings").onclick = openSettings;
 $("cancel").onclick = () => $("settings").close();
-$("forget").onclick = () => { $("f-token").value = ""; };
+$("forget").onclick = () => { $("f-token").value = ""; $("f-notifications-token").value = ""; };
 $("settings-form").addEventListener("submit", () => {
   const repo = $("f-repo").value.trim().replace(/^https?:\/\/github\.com\//, "").replace(/\/+$/, "");
-  settings = { repo: repo || DEFAULTS.repo, token: $("f-token").value.trim(), title: $("f-title").value.trim() || DEFAULTS.title };
-  writeStore(SETTINGS_KEY, settings); load();
+  settings = { repo: repo || DEFAULTS.repo, token: $("f-token").value.trim(), notificationsToken: $("f-notifications-token").value.trim(), title: $("f-title").value.trim() || DEFAULTS.title };
+  writeStore(SETTINGS_KEY, settings); load(); if (settings.notificationsToken) loadNotifications();
 });
 $("refresh").onclick = load;
 $("tab-pos").onclick = () => { tab = "pos"; current && renderList(current.report && current.report.data ? derive(current.report.data) : null); };
@@ -801,6 +1248,7 @@ function start() {
   if (cached && cached.repo === settings.repo && window.d3) render(cached);
   if (!readStore(SETTINGS_KEY)) openSettings();
   load();
+  if (settings.notificationsToken) loadNotifications();
 }
 if (window.d3) start(); else addEventListener("load", () => setTimeout(start, 50));
 </script>

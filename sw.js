@@ -1,6 +1,6 @@
 // App shell + chart library are cached so the app opens offline.
 // GitHub data is never cached here (the page keeps its own last-known copy).
-const CACHE = "kquant-v4";
+const CACHE = "kquant-v21";
 const SHELL = ["./", "./index.html", "./manifest.json", "./icon-192.png", "./icon-512.png"];
 const LIBS = ["https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js", "https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"];
 
